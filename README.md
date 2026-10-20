@@ -37,7 +37,16 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 
 ## Update
 
-Push changes to this repo, then run `/plugin marketplace update wboniecki` on each machine.
+1. Edit in this repo (never in `~/.claude/plugins/`), and bump `version` in `plugins/wb/.claude-plugin/plugin.json`.
+2. Run `claude plugin validate .`, then commit and push.
+3. On each machine:
+
+   ```
+   claude plugin marketplace update wboniecki
+   claude plugin update wb@wboniecki
+   ```
+
+   Then restart Claude Code.
 
 ## Notes for Windows
 - Claude Code on Windows uses the PowerShell tool. The hook has matcher groups for both `Bash` and `PowerShell`.
