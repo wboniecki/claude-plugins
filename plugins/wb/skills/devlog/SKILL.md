@@ -1,0 +1,116 @@
+---
+name: devlog
+description: Log the current coding session (setup steps, changes, decisions, problems solved, lessons) into the user's Obsidian vault, either as a project devlog note or as a Devlog section in a D365 work-item note, plus concept notes. Run only when the user types /wb:devlog.
+disable-model-invocation: true
+argument-hint: "[session title] [--new-project] [--work <ID or client>]"
+---
+
+# /wb:devlog: write a session log to Obsidian
+
+The user is learning modern development and is also a Dynamics 365 F&O developer. These notes are their
+learning record, so the point is understanding, not a changelog. Write for someone who will reread this in six months.
+
+The skill runs on Linux (bash) and Windows (PowerShell). Use Claude's **Glob, Grep, Read, Write and Edit tools** for every
+vault operation. Use the shell only for `git` or `tf` and for reading the env var, so nothing depends on `grep`, `ls` or
+path syntax.
+
+## Step 0: find the vault
+Read the env var `DEVLOG_VAULT`: `echo $DEVLOG_VAULT` in bash, or `$env:DEVLOG_VAULT` in PowerShell.
+If it's empty or the folder doesn't exist, **stop** and tell the user to add it to `~/.claude/settings.json`
+(on Windows that's `%USERPROFILE%\.claude\settings.json`):
+```json
+{ "env": { "DEVLOG_VAULT": "<absolute path to the vault folder>" } }
+```
+Then they need to restart Claude Code. Never guess the path.
+
+Vault layout (the same vault on every machine, synced with Obsidian Sync):
+
+| What | Where (relative to the vault) |
+| --- | --- |
+| Personal / dev projects | `01 - Projects/00 - Personal/<Project>/` (`_index.md`, `Devlog/`) |
+| Work dev projects (tools, not client items) | `01 - Projects/01 - Work/<Project>/` |
+| D365 work items | `02 - Areas/01 - Work/<NN - Client>/<ID> - <title>.md` |
+| Client info | `02 - Areas/01 - Work/<NN - Client>/00 - <Client> - …md` |
+| Concept notes (shared) | `04 - Permament/Dev/<Concept>.md` |
+| User's work task template | `99 - Meta/00 - Templates/01 - Work/(T) Work Task.md` |
+
+This skill's own templates are in `templates/`, next to this file: `project-index.md`, `session-log.md`, `concept.md`
+and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeholder, and every placeholder must be filled.
+
+## Step 1: work out the source and the mode
+**Source control:**
+- **Git:** `git rev-parse --show-toplevel` works. Get `git remote get-url origin` and normalise it:
+  - GitHub: `https://github.com/<owner>/<repo>`. Drop `.git`, and convert `git@github.com:` to `https://github.com/`.
+  - Azure DevOps: `https://dev.azure.com/<org>/<project>/_git/<repo>`. Convert `<org>@vs-ssh.visualstudio.com:v3/<org>/<project>/<repo>`
+    and `https://<org>.visualstudio.com/<project>/_git/<repo>` to that form, and drop any `user@` prefix.
+- **TFVC:** there's no git repo, but a `$tf` folder exists or `tf workfold` works. Changesets come from
+  `tf history . /recursive /stopafter:10 /format:brief /noprompt`. If `tf` isn't on PATH, ask the user for the changeset numbers.
+- **Neither:** ask what this is.
+
+**Mode:**
+- **Work item:** use this when the user passed `--work`, or a work-item ID appears in the branch name (e.g. `feature/17656-…`) or in commit
+  or changeset comments, or the remote is Azure DevOps or the source is TFVC. If you're unsure, ask: "Work item (which ID and client?)
+  or project log?"
+- **Project:** everything else (GitHub repos, personal tools).
+
+## Step 2: gather what happened
+- **Project mode:** read `last_commit` from the newest note in `<Project>/Devlog/`, then `git log --stat <last_commit>..HEAD`.
+  If there's no previous log, use the whole history.
+- **Work mode:** commits on the current branch that aren't in the main branch (`git log --stat main..HEAD`, or `master`), or
+  the TFVC changesets above. Skip anything already listed in the note's previous Devlog sections.
+- Combine that with this conversation: decisions and why they were made, errors with their exact text and real cause,
+  and anything the user asked to understand.
+
+## Step 3a: project mode
+1. Find the project: Grep `repo: <normalised url>` in files named `_index.md` under `01 - Projects/`. If nothing matches, or
+   `--new-project` was given, ask whether it's personal or work and what it's called (default: the repo name in Title Case).
+   Reuse the folder if it already exists, then create `_index.md` from `project-index.md`.
+2. Write the log to `<Project>/Devlog/YYYY-MM-DD <Title>.md` from `session-log.md`. If a log dated today already exists, add
+   `## Session HH:MM` with the same subsections at the end instead. Update `last_commit` and `commits`.
+3. Update `_index.md`: add the log to **Devlog** (newest last) and new rows to **Decisions**, and update `status`, `url` or **Stack**.
+
+## Step 3b: work mode
+1. Find the client folder under `02 - Areas/01 - Work/` (the folder names are `NN - Client`). If the client isn't clear, list the folders
+   and ask.
+2. Glob `<client folder>/<ID> - *.md`.
+   - **If found:** append a section from `work-devlog-section.md` at the **end** of the note. Don't touch the existing text.
+     Existing notes are often in Polish. Leave them as they are and write the new section in English.
+     In the frontmatter, fill `branch_name`, `changeset/PR` or `solution_name` **only if they're empty**. Never overwrite a value.
+   - **If not found:** create `<ID> - <title>.md` from the user's `(T) Work Task.md`. Resolve its Templater syntax by hand:
+     `<% tp.date.now("YYYY-MM-DD")%>` becomes today's date, and `<% tp.file.title %>` becomes the note title. Fill the frontmatter
+     you know, put a one-line description under the heading, then append the Devlog section.
+3. Work items have no `_index.md`. The task note is the index.
+
+## Step 4: concept notes (both modes)
+Pick at most 3 concepts that are genuinely new to the user (e.g. "Chain of Command", "Astro content collections").
+- Search first: Glob `04 - Permament/Dev/*.md`, then Grep `aliases:` for the name and its abbreviations. If a note exists,
+  link it, and add one line under **How I used it**. That's the only change allowed to an existing concept note.
+- If none exists, create one from `concept.md`. Create `04 - Permament/Dev/` if it's missing.
+- **From work:** keep concept notes generic. **No client names** (link to the work-item note for context, and write
+  "a client project" in the text). **Code is fine**, but make it generic where it's easy.
+  **Ask before including any data**: record values, customer or vendor names, amounts, environment names or URLs.
+
+Write each note **before** linking to it anywhere else. Clicking an unresolved link makes Obsidian create an empty note.
+If a target file already exists and is empty (0 bytes), it's such a placeholder and can be overwritten. If it has content
+and it isn't a work-item note from step 3b, ask first.
+
+## Step 5: report
+List every created or changed note as a full absolute path. Then add one sentence on what's worth rereading, and remind the user
+that Obsidian Sync will pick the notes up.
+
+## Rules
+- **English**, unless the user asks for Polish.
+- **Links use full vault paths** with `/` (on Windows too), without `.md`, plus a display name:
+  `[[01 - Projects/00 - Personal/D365 Blog/_index|D365 Blog]]`. The vault has many `_index.md` files.
+- **Plain Markdown only.** No Templater `<% %>` syntax in the output, and no community-plugin syntax. Frontmatter must be valid YAML.
+  Quote values that contain `[[`, `:` or `#`.
+- **Only touch these notes:** notes this skill created, additions to a project `_index.md`, appended Devlog sections and empty-field
+  fills in work-item notes, and one-line additions to concept notes. Never rename, move or delete anything in the vault. It holds
+  the user's personal notes and their work task tracking.
+- **No secrets, ever.** Leave out tokens, keys, passwords, connection strings, one-time codes, subscription or tenant IDs, and
+  environment URLs with credentials. Write "the subscription" or "the tenant" instead.
+- **Work data:** ask before writing business data anywhere (see step 4). Client names are fine *inside* that client's own
+  area folder, because the user already keeps them there.
+- **Plain words.** Explain jargon the first time it appears. A D365 F&O comparison helps when it really fits.
+- Keep it scannable. Use bullets over paragraphs. Keep a project session log under about 150 lines and a work Devlog section under about 40.
+- `Next steps` are written as `- [ ]` tasks, which is where the future planner skill will collect them.

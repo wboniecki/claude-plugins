@@ -1,0 +1,15 @@
+{
+  "name": "wboniecki",
+  "description": "Wiktor Boniecki's personal Claude Code plugins (dev workflow, Obsidian devlog).",
+  "owner": {
+    "name": "Wiktor Boniecki",
+    "url": "https://github.com/wboniecki"
+  },
+  "plugins": [
+    {
+      "name": "wb",
+      "source": "./plugins/wb",
+      "description": "Personal dev workflow: /wb:devlog logs coding sessions to an Obsidian vault, plus a commit reminder hook."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit *)",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A git commit command just ran. If its output shows a commit was actually created, end your reply with one line: Committed. Run /wb:devlog to log it to Obsidian. Do not run /wb:devlog yourself.\"}}'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "PowerShell(git commit *)",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A git commit command just ran. If its output shows a commit was actually created, end your reply with one line: Committed. Run /wb:devlog to log it to Obsidian. Do not run /wb:devlog yourself.\"}}'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(tf checkin *)",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A TFVC check-in just ran. If its output shows a changeset was created, end your reply with one line: Checked in. Run /wb:devlog to log it to Obsidian. Do not run /wb:devlog yourself.\"}}'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(tf.exe checkin *)",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A TFVC check-in just ran. If its output shows a changeset was created, end your reply with one line: Checked in. Run /wb:devlog to log it to Obsidian. Do not run /wb:devlog yourself.\"}}'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
