@@ -15,10 +15,10 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 - **`/wb:d365-task <ID> [client]`** (v0) dumps a finished D365 task into its note in `02 - Areas/01 - Work/<Client>/`:
   description, solution per changed object, key code, tests. It reads the repo's `.claude/tasks/<ID>.md` if there is one,
   and offers memo cards.
-- **`/wb:sesja`** saves the current work session as a handoff note in `99 - Meta/Claude/Sesje/` (where it stopped, decisions,
+- **`/wb:session`** saves the current work session as a handoff note in `99 - Meta/Claude/Sessions/` (where it stopped, decisions,
   what it waits for, next steps, the working directory and git state), so a new session on any machine can pick it up.
-  Subcommands: `zapisz`, `lista [phrase]` (the default), `wznow`, `zakoncz` (moves it to `Archiwum/`) and `usun`.
-  It also runs on phrases like "pokaż zapisane sesje". A `Sesje.base` view lists the sessions in Obsidian.
+  Subcommands: `save`, `list [phrase]` (the default), `resume`, `finish` (moves it to `Archive/`) and `delete`.
+  It also runs on phrases like "show saved sessions" or "pokaż zapisane sesje". A `Sessions.base` view lists the sessions in Obsidian.
 - **Commit reminder hook:** after Claude makes a successful `git commit` (or a `tf checkin` on Windows), it reminds you to run
   `/wb:devlog`. It runs no scripts: the same `echo` command works in bash and in PowerShell.
 
@@ -41,7 +41,7 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
    /plugin install wb@wboniecki
    ```
 
-3. Restart Claude Code. `/wb:devlog`, `/wb:d365-task` and `/wb:sesja` should now appear in the command list.
+3. Restart Claude Code. `/wb:devlog`, `/wb:d365-task` and `/wb:session` should now appear in the command list.
 
 ## Update
 
