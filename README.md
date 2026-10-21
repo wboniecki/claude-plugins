@@ -9,7 +9,7 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
   and next steps.
   - Personal and dev projects get `01 - Projects/<…>/<Project>/_index.md` plus `Devlog/` notes.
   - D365 work items get a `## Devlog` section appended to `02 - Areas/01 - Work/<Client>/<ID> - <title>.md`.
-  - Shared concept notes go in `04 - Permament/Dev/`.
+  - Shared concept and tip notes go in `04 - Permament/Dev/` (flat, with `type` and `area` properties).
   - Supports git (GitHub, Azure DevOps) and TFVC.
 - **Commit reminder hook:** after Claude makes a successful `git commit` (or a `tf checkin` on Windows), it reminds you to run
   `/wb:devlog`. It runs no scripts: the same `echo` command works in bash and in PowerShell.

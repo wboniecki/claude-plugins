@@ -32,10 +32,11 @@ Vault layout (the same vault on every machine, synced with Obsidian Sync):
 | D365 work items | `02 - Areas/01 - Work/<NN - Client>/<ID> - <title>.md` |
 | Client info | `02 - Areas/01 - Work/<NN - Client>/00 - <Client> - …md` |
 | Concept notes (shared) | `04 - Permament/Dev/<Concept>.md` |
+| Tip notes (shared) | `04 - Permament/Dev/<Tip>.md` |
 | User's work task template | `99 - Meta/00 - Templates/01 - Work/(T) Work Task.md` |
 
-This skill's own templates are in `templates/`, next to this file: `project-index.md`, `session-log.md`, `concept.md`
-and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeholder, and every placeholder must be filled.
+This skill's own templates are in `templates/`, next to this file: `project-index.md`, `session-log.md`, `concept.md`,
+`tip.md` and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeholder, and every placeholder must be filled.
 
 ## Step 1: work out the source and the mode
 **Source control:**
@@ -81,11 +82,19 @@ and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeh
      you know, put a one-line description under the heading, then append the Devlog section.
 3. Work items have no `_index.md`. The task note is the index.
 
-## Step 4: concept notes (both modes)
-Pick at most 3 concepts that are genuinely new to the user (e.g. "Chain of Command", "Astro content collections").
+## Step 4: concept and tip notes (both modes)
+Pick at most 3 notes in total:
+- **Concepts** that are genuinely new to the user (e.g. "Chain of Command", "Astro content collections"), from `concept.md`.
+- **Tips**: a reusable command or procedure from the session that the user will want to run again
+  (e.g. "Install Node.js with winget"), from `tip.md`.
+
+Both live flat in `04 - Permament/Dev/`. Don't create subfolders there: the vault's Dev catalog (an Obsidian Bases view)
+lists the notes by `type` and groups them by `area`, so it needs no MOC edits.
 - Search first: Glob `04 - Permament/Dev/*.md`, then Grep `aliases:` for the name and its abbreviations. If a note exists,
-  link it, and add one line under **How I used it**. That's the only change allowed to an existing concept note.
-- If none exists, create one from `concept.md`. Create `04 - Permament/Dev/` if it's missing.
+  link it. For a concept, add one line under **How I used it**. That's the only change allowed to an existing note.
+- If none exists, create one from the template. Create `04 - Permament/Dev/` if it's missing.
+- `area`: Grep `^area:` in `04 - Permament/Dev/` and reuse an existing value. Add a new one (lowercase, one word or
+  kebab-case) only when none fits. Exactly one area per note.
 - **From work:** keep concept notes generic. **No client names** (link to the work-item note for context, and write
   "a client project" in the text). **Code is fine**, but make it generic where it's easy.
   **Ask before including any data**: record values, customer or vendor names, amounts, environment names or URLs.

@@ -1,9 +1,9 @@
 ---
 type: concept
 aliases: [{{other names, abbreviations}}]
+area: {{one lowercase area, e.g. web, azure, linux, git, powershell}}
 tags:
   - concept
-  - {{area, e.g. web, azure, linux, git}}
 first_seen: "[[{{vault path to the log where it first came up}}|{{log title}}]]"
 ---
 
