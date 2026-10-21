@@ -69,6 +69,10 @@ This skill's own templates are in `templates/`, next to this file: `project-inde
    Reuse the folder if it already exists, then create `_index.md` from `project-index.md`.
 2. Write the log to `<Project>/Devlog/YYYY-MM-DD <Title>.md` from `session-log.md`. If a log dated today already exists, add
    `## Session HH:MM` with the same subsections at the end instead. Update `last_commit` and `commits`.
+   When you append, also update that log's **title** so it covers the new session: if it names a version range
+   (`wb 0.2-0.3 - …`), extend it (`wb 0.2-0.4 - …`), and add the new topic to the subtitle (`…, sesja`). Change the H1 and the
+   file name together, then fix every link to the old name: Grep the vault for the old file name (the project `_index.md`
+   **Devlog** list, `first_seen:` in concept and tip notes) and replace it.
 3. Update `_index.md`: add the log to **Devlog** (newest last) and new rows to **Decisions**, and update `status`, `url` or **Stack**.
 
 ## Step 3b: work mode
@@ -125,7 +129,8 @@ that Obsidian Sync will pick the notes up.
 - **Plain Markdown only.** No Templater `<% %>` syntax in the output, and no community-plugin syntax. Frontmatter must be valid YAML.
   Quote values that contain `[[`, `:` or `#`.
 - **Only touch these notes:** notes this skill created, additions to a project `_index.md`, appended Devlog sections and empty-field
-  fills in work-item notes, and one-line additions to concept notes. Never rename, move or delete anything in the vault. It holds
+  fills in work-item notes, and one-line additions to concept notes. Never rename, move or delete anything in the vault, except
+  renaming a session log this skill wrote when appending to it (step 3a), together with the links to it. The vault holds
   the user's personal notes and their work task tracking.
 - **No secrets, ever.** Leave out tokens, keys, passwords, connection strings, one-time codes, subscription or tenant IDs, and
   environment URLs with credentials. Write "the subscription" or "the tenant" instead.

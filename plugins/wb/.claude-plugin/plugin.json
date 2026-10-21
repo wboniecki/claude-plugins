@@ -1,7 +1,7 @@
 {
   "name": "wb",
   "displayName": "wb dev workflow",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Log coding sessions (setup, changes, decisions, problems, lessons) to an Obsidian vault with /wb:devlog, dump finished D365 tasks with /wb:d365-task, and save or resume work sessions across machines with /wb:sesja. Works on Linux and Windows; supports git and TFVC, home projects and D365 work items.",
   "author": {
     "name": "Wiktor Boniecki",
