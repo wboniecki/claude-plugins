@@ -9,7 +9,7 @@
     {
       "name": "wb",
       "source": "./plugins/wb",
-      "description": "Personal dev workflow: /wb:devlog logs coding sessions to an Obsidian vault, plus a commit reminder hook."
+      "description": "Personal dev workflow: /wb:devlog logs coding sessions to an Obsidian vault, /wb:d365-task dumps finished D365 tasks, /wb:sesja saves and resumes work sessions across machines, plus a commit reminder hook."
     }
   ]
 }

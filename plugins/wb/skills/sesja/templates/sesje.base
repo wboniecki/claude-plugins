@@ -1,0 +1,47 @@
+filters:
+  and:
+    - file.inFolder("99 - Meta/Claude/Sesje")
+    - type == "sesja"
+properties:
+  file.name:
+    displayName: Sesja
+  note.status:
+    displayName: Status
+  note.czeka_na:
+    displayName: Czeka na
+  note.updated:
+    displayName: Ostatnio
+  note.maszyna:
+    displayName: Maszyna
+  note.katalog:
+    displayName: Katalog
+views:
+  - type: table
+    name: Otwarte
+    filters:
+      and:
+        - status != "zakończona"
+    groupBy:
+      property: note.status
+      direction: ASC
+    order:
+      - file.name
+      - note.czeka_na
+      - note.updated
+      - note.maszyna
+      - note.katalog
+    sort:
+      - property: note.updated
+        direction: DESC
+  - type: table
+    name: Archiwum
+    filters:
+      and:
+        - status == "zakończona"
+    order:
+      - file.name
+      - note.updated
+      - note.maszyna
+    sort:
+      - property: note.updated
+        direction: DESC
