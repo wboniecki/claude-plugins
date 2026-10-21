@@ -9,8 +9,12 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
   and next steps.
   - Personal and dev projects get `01 - Projects/<…>/<Project>/_index.md` plus `Devlog/` notes.
   - D365 work items get a `## Devlog` section appended to `02 - Areas/01 - Work/<Client>/<ID> - <title>.md`.
-  - Shared concept and tip notes go in `04 - Permament/Dev/` (flat, with `type` and `area` properties).
+  - Shared concept and tip notes go in `03 - Resources/00 - Personal/Dev/` (flat, with `type` and `area` properties).
+  - X++ / D365 code from work becomes short memo cards in `03 - Resources/01 - Work/`.
   - Supports git (GitHub, Azure DevOps) and TFVC.
+- **`/wb:d365-task <ID> [client]`** (v0) dumps a finished D365 task into its note in `02 - Areas/01 - Work/<Client>/`:
+  description, solution per changed object, key code, tests. It reads the repo's `.claude/tasks/<ID>.md` if there is one,
+  and offers memo cards.
 - **Commit reminder hook:** after Claude makes a successful `git commit` (or a `tf checkin` on Windows), it reminds you to run
   `/wb:devlog`. It runs no scripts: the same `echo` command works in bash and in PowerShell.
 

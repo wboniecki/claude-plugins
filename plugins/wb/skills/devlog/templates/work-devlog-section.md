@@ -12,7 +12,7 @@
 - **{{Symptom or compiler error text}}**: {{cause}} → {{fix}}
 
 ### Learned
-- [[04 - Permament/Dev/{{Concept}}|{{Concept}}]]: {{one-line takeaway}}
+- [[03 - Resources/00 - Personal/Dev/{{Concept}}|{{Concept}}]]: {{one-line takeaway}}
 
 ### Next steps
 - [ ] {{task}}

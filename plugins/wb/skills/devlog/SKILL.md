@@ -31,12 +31,13 @@ Vault layout (the same vault on every machine, synced with Obsidian Sync):
 | Work dev projects (tools, not client items) | `01 - Projects/01 - Work/<Project>/` |
 | D365 work items | `02 - Areas/01 - Work/<NN - Client>/<ID> - <title>.md` |
 | Client info | `02 - Areas/01 - Work/<NN - Client>/00 - <Client> - …md` |
-| Concept notes (shared) | `04 - Permament/Dev/<Concept>.md` |
-| Tip notes (shared) | `04 - Permament/Dev/<Tip>.md` |
+| Concept notes (shared) | `03 - Resources/00 - Personal/Dev/<Concept>.md` |
+| Tip notes (shared) | `03 - Resources/00 - Personal/Dev/<Tip>.md` |
+| D365 / X++ memo cards (work) | `03 - Resources/01 - Work/<Title>.md` |
 | User's work task template | `99 - Meta/00 - Templates/01 - Work/(T) Work Task.md` |
 
 This skill's own templates are in `templates/`, next to this file: `project-index.md`, `session-log.md`, `concept.md`,
-`tip.md` and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeholder, and every placeholder must be filled.
+`tip.md`, `work-card.md` and `work-devlog-section.md`. Read them before writing. `{{...}}` marks a placeholder, and every placeholder must be filled.
 
 ## Step 1: work out the source and the mode
 **Source control:**
@@ -76,7 +77,8 @@ This skill's own templates are in `templates/`, next to this file: `project-inde
 2. Glob `<client folder>/<ID> - *.md`.
    - **If found:** append a section from `work-devlog-section.md` at the **end** of the note. Don't touch the existing text.
      Existing notes are often in Polish. Leave them as they are and write the new section in English.
-     In the frontmatter, fill `branch_name`, `changeset/PR` or `solution_name` **only if they're empty**. Never overwrite a value.
+     In the frontmatter, fill `branch_name`, `solution_name` and the changeset key (`changeset/PR`, or `changeset` in older notes,
+     whichever the note has) **only if they're empty**. Never overwrite a value.
    - **If not found:** create `<ID> - <title>.md` from the user's `(T) Work Task.md`. Resolve its Templater syntax by hand:
      `<% tp.date.now("YYYY-MM-DD")%>` becomes today's date, and `<% tp.file.title %>` becomes the note title. Fill the frontmatter
      you know, put a one-line description under the heading, then append the Devlog section.
@@ -87,17 +89,26 @@ Pick at most 3 notes in total:
 - **Concepts** that are genuinely new to the user (e.g. "Chain of Command", "Astro content collections"), from `concept.md`.
 - **Tips**: a reusable command or procedure from the session that the user will want to run again
   (e.g. "Install Node.js with winget"), from `tip.md`.
+- **X++ / D365 code from work** is not a tip: it becomes a memo card in `03 - Resources/01 - Work/` from `work-card.md`
+  (see below).
 
-Both live flat in `04 - Permament/Dev/`. Don't create subfolders there: the vault's Dev catalog (an Obsidian Bases view)
+Both live flat in `03 - Resources/00 - Personal/Dev/`. Don't create subfolders there: the vault's Dev catalog (an Obsidian Bases view)
 lists the notes by `type` and groups them by `area`, so it needs no MOC edits.
-- Search first: Glob `04 - Permament/Dev/*.md`, then Grep `aliases:` for the name and its abbreviations. If a note exists,
+- Search first: Glob `03 - Resources/00 - Personal/Dev/*.md`, then Grep `aliases:` for the name and its abbreviations. If a note exists,
   link it. For a concept, add one line under **How I used it**. That's the only change allowed to an existing note.
-- If none exists, create one from the template. Create `04 - Permament/Dev/` if it's missing.
-- `area`: Grep `^area:` in `04 - Permament/Dev/` and reuse an existing value. Add a new one (lowercase, one word or
+- If none exists, create one from the template. Create `03 - Resources/00 - Personal/Dev/` if it's missing.
+- `area`: Grep `^area:` in `03 - Resources/00 - Personal/Dev/` and reuse an existing value. Add a new one (lowercase, one word or
   kebab-case) only when none fits. Exactly one area per note.
 - **From work:** keep concept notes generic. **No client names** (link to the work-item note for context, and write
   "a client project" in the text). **Code is fine**, but make it generic where it's easy.
   **Ask before including any data**: record values, customer or vendor names, amounts, environment names or URLs.
+
+**Memo cards (X++ / D365).** A card is a self-explanatory title plus code, even a single line. No "when to use" sections;
+add one or two lines of explanation only when the code alone doesn't make the trick clear.
+- Search first: Grep `03 - Resources/01 - Work/` for the main class or method names. If a card already covers it, link it instead.
+- File name: short, the title says what the code does (Polish or English, like the existing cards).
+- Use generic placeholder names (`Xyz…`) instead of client prefixes where it's easy. Same data rule as above.
+- Offer the cards (max 3) and write them only after the user confirms.
 
 Write each note **before** linking to it anywhere else. Clicking an unresolved link makes Obsidian create an empty note.
 If a target file already exists and is empty (0 bytes), it's such a placeholder and can be overwritten. If it has content
