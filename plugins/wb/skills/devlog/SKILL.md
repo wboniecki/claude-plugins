@@ -28,9 +28,9 @@ Vault layout (the same vault on every machine, synced with Obsidian Sync):
 | What | Where (relative to the vault) |
 | --- | --- |
 | Personal / dev projects | `01 - Projects/00 - Personal/<Project>/` (`_index.md`, `Devlog/`) |
-| Work dev projects (tools, not client items) | `01 - Projects/01 - Work/<Project>/` |
-| D365 work items | `02 - Areas/01 - Work/<NN - Client>/<ID> - <title>.md` |
-| Client info | `02 - Areas/01 - Work/<NN - Client>/00 - <Client> - …md` |
+| Work dev projects (tools, not client items) | `01 - Projects/01 - Work/<Project>/` (no `NN - ` prefix) |
+| D365 work items | `01 - Projects/01 - Work/<NN - Client>/<ID> - <title>.md` |
+| Client info | `01 - Projects/01 - Work/<NN - Client>/00 - <Client> - …md` |
 | Concept notes (shared) | `03 - Resources/00 - Personal/Dev/<Concept>.md` |
 | Tip notes (shared) | `03 - Resources/00 - Personal/Dev/<Tip>.md` |
 | D365 / X++ memo cards (work) | `03 - Resources/01 - Work/<Title>.md` |
@@ -76,7 +76,7 @@ This skill's own templates are in `templates/`, next to this file: `project-inde
 3. Update `_index.md`: add the log to **Devlog** (newest last) and new rows to **Decisions**, and update `status`, `url` or **Stack**.
 
 ## Step 3b: work mode
-1. Find the client folder under `02 - Areas/01 - Work/` (the folder names are `NN - Client`). If the client isn't clear, list the folders
+1. Find the client folder under `01 - Projects/01 - Work/` (the folder names are `NN - Client`; finished clients are archived in the vault's `<NN> - Archives/` folder, read only, so ask if the client is only there). If the client isn't clear, list the folders
    and ask.
 2. Glob `<client folder>/<ID> - *.md`.
    - **If found:** append a section from `work-devlog-section.md` at the **end** of the note. Don't touch the existing text.
