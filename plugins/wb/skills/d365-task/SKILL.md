@@ -28,14 +28,20 @@ the user to the `env` block in `~/.claude/settings.json` (same as `/wb:devlog`).
 Target: `01 - Projects/01 - Work/<NN - Client>/<ID> - <title>.md` (Glob `<ID> - *.md` first).
 - **Not found:** create it from `templates/d365-task.md` (next to this file). Title: a short Polish description of the task.
 - **Found:** append `## Podsumowanie <YYYY-MM-DD>` at the **end** with the same sections as the template body (`### Opis`,
-  `### Opis rozwiązania`, …). Don't change existing text. In the frontmatter, fill `branch_name`, `solution_name` and the
-  changeset key (`changeset/PR` or `changeset`, whichever exists) only if empty.
+  `### Opis rozwiązania`, …). Add only sections that have content; skip empty ones (no "bez zmian" placeholders).
+  Don't change existing text, except checkbox status (see below). In the frontmatter, fill `branch_name`, `solution_name`
+  and the changeset key (`changeset/PR` or `changeset`, whichever exists) only if empty.
+- **Checkbox status:** tick `- [ ]` items in earlier summaries that are now done (tests the user reports as done,
+  to-dos the code now covers). Check to-dos about code yourself in the objects of the task's VS project (repo paths only),
+  instead of asking the user.
 
 Content rules:
 - **Polish**, like the user's task notes. AOT names and code stay as they are.
 - `Opis rozwiązania`: one bullet per changed object (`Object`: what changed and why). Plain words.
 - `Kod`: only the key snippets (the CoC method or the core logic), not whole classes. Use ```` ```X++ fold ```` blocks.
 - `Testy`: a `- [ ]` checklist of the scenarios tested or still to test.
+- `Notatki` to-dos: short summaries of the remaining functional work. No build/compile items (they happen many times
+  during a task); mention build/compile only in the pre-PR check.
 - **No secrets** (keys, passwords, connection strings, tenant/subscription IDs). **Ask before business data**
   (record values, customer/vendor names, amounts, environment URLs).
 - Never move, rename or delete anything in the vault.
