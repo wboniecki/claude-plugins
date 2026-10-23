@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I -B \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks.py\" push",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I -B \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks.py\" session-start",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

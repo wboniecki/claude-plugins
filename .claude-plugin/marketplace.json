@@ -1,15 +1,15 @@
 {
   "name": "wboniecki",
-  "description": "Wiktor Boniecki's personal Claude Code plugins (dev workflow, Obsidian devlog).",
+  "description": "Wiktor Boniecki's personal Claude Code plugins (Obsidian vault workflow).",
   "owner": {
     "name": "Wiktor Boniecki",
     "url": "https://github.com/wboniecki"
   },
   "plugins": [
     {
-      "name": "wb",
-      "source": "./plugins/wb",
-      "description": "Personal dev workflow: /wb:devlog logs coding sessions to an Obsidian vault, /wb:d365-task dumps finished D365 tasks, /wb:session saves and resumes work sessions across machines, plus a commit reminder hook."
+      "name": "vault",
+      "source": "./plugins/vault",
+      "description": "Obsidian vault workflow: devlogs, D365 task notes, session handoffs, captures, inbox/web notes and game cards, written from any repo into a vault with a configurable layout."
     }
   ]
 }

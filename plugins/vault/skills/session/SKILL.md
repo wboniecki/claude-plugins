@@ -1,13 +1,13 @@
 ---
 name: session
-description: Save, list, search, resume, finish (archive) or delete Claude work sessions as handoff notes in the user's Obsidian vault, so work can continue in a new session or on another machine. Use when the user types /wb:session, or says things like "save this session", "show saved sessions", "where did we leave off", "last time we worked on X", "let's get back to X", or the Polish "zapisz sesję", "pokaż zapisane sesje", "ostatnio zajmowaliśmy się X", "wróćmy do X".
+description: Save, list, search, resume, finish (archive) or delete Claude work sessions as handoff notes in the user's Obsidian vault, so work can continue in a new session or on another machine. Use when the user types /vault:session, or says things like "save this session", "show saved sessions", "where did we leave off", "last time we worked on X", "let's get back to X", or the Polish "zapisz sesję", "pokaż zapisane sesje", "ostatnio zajmowaliśmy się X", "wróćmy do X".
 argument-hint: "[save [topic] | list [phrase] [--archive] | resume <no|name> | finish <no|name> | delete <no|name>]"
 ---
 
-# /wb:session: session handoff notes in Obsidian
+# /vault:session: session handoff notes in Obsidian
 
 A session note is a **temporary handoff**: everything a fresh Claude needs to pick the work up where it stopped, on any machine.
-It is not a learning record. That's `/wb:devlog`. A session note lives while the topic is open, then goes to the archive.
+It is not a learning record. That's `/vault:devlog`. A session note lives while the topic is open, then goes to the archive.
 
 The skill runs on Linux (bash) and Windows (PowerShell). Use Claude's **Glob, Grep, Read, Write and Edit tools** for every
 vault operation. Use the shell only for `git`, `hostname` and reading the env var.
@@ -101,7 +101,7 @@ If several match, list them and ask.
 2. Set `status: done`, `updated`, clear `waiting_for`, append the outcome to **History**.
 3. Move the file to `Archive/` (create the folder if needed) with the same name. Use Read + Write to the new path, then
    delete the old file with the shell (`rm` / `Remove-Item`) only after the new one is written.
-4. If the session was dev work and no devlog covers it, suggest `/wb:devlog`.
+4. If the session was dev work and no devlog covers it, suggest `/vault:devlog`.
 
 ## Delete
 Only on explicit request. Show the note's name, status and `updated`, ask whether to delete it for good, and wait for a clear yes.
