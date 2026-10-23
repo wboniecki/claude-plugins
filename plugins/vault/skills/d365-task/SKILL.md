@@ -1,11 +1,11 @@
 ---
 name: d365-task
-description: Dump a finished D365 F&O work item (description, solution, changed objects, key code, tests) into its task note in the user's Obsidian vault, and offer X++ memo cards. Run only when the user types /wb:d365-task, usually right after "task <n> finished" in a D365 repo.
+description: Dump a finished D365 F&O work item (description, solution, changed objects, key code, tests) into its task note in the user's Obsidian vault, and offer X++ memo cards. Run only when the user types /vault:d365-task, usually right after "task <n> finished" in a D365 repo.
 disable-model-invocation: true
 argument-hint: "<work item ID> [client]"
 ---
 
-# /wb:d365-task: write a finished D365 task to Obsidian
+# /vault:d365-task: write a finished D365 task to Obsidian
 
 **v0, a soft entry point.** The user will tune it while using it. Keep it simple and follow it literally; see **Later** at the end.
 
@@ -13,7 +13,7 @@ Use Claude's **Glob, Grep, Read, Write and Edit tools** for the vault. Use the s
 
 ## Step 0: vault
 Read `DEVLOG_VAULT` (`echo $DEVLOG_VAULT` in bash, `$env:DEVLOG_VAULT` in PowerShell). If it's empty or missing, stop and point
-the user to the `env` block in `~/.claude/settings.json` (same as `/wb:devlog`). Never guess the path.
+the user to the `env` block in `~/.claude/settings.json` (same as `/vault:devlog`). Never guess the path.
 
 ## Step 1: gather
 - **ID and client:** from the arguments, else from the branch name (`Sii_<ID>_<Description>` or `feature/<ID>-…`), else ask.
@@ -58,4 +58,4 @@ List the created or changed notes as full paths, in one short list.
 Ideas the user will decide on, so don't do these yet:
 - fill `timelog` from the repo's time report (`.claude/tasks/timereport.ps1 -Ticket <ID>`)
 - `url` to the work item (dropped for now)
-- merge with `/wb:devlog` work mode, which also appends to task notes
+- merge with `/vault:devlog` work mode, which also appends to task notes

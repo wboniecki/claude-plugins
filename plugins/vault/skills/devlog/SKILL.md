@@ -1,11 +1,11 @@
 ---
 name: devlog
-description: Log the current coding session (setup steps, changes, decisions, problems solved, lessons) into the user's Obsidian vault, either as a project devlog note or as a Devlog section in a D365 work-item note, plus concept notes. Run only when the user types /wb:devlog.
+description: Log the current coding session (setup steps, changes, decisions, problems solved, lessons) into the user's Obsidian vault, either as a project devlog note or as a Devlog section in a D365 work-item note, plus concept notes. Run only when the user types /vault:devlog.
 disable-model-invocation: true
 argument-hint: "[session title] [--new-project] [--work <ID or client>]"
 ---
 
-# /wb:devlog: write a session log to Obsidian
+# /vault:devlog: write a session log to Obsidian
 
 The user is learning modern development and is also a Dynamics 365 F&O developer. These notes are their
 learning record, so the point is understanding, not a changelog. Write for someone who will reread this in six months.
