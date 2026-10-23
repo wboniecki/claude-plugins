@@ -17,14 +17,15 @@ the user to the `env` block in `~/.claude/settings.json` (same as `/wb:devlog`).
 
 ## Step 1: gather
 - **ID and client:** from the arguments, else from the branch name (`Sii_<ID>_<Description>` or `feature/<ID>-…`), else ask.
-  The client folder is one of `02 - Areas/01 - Work/<NN - Client>/`. If unclear, list the folders and ask.
+  The client folder is one of `01 - Projects/01 - Work/<NN - Client>/` (active clients). Finished clients are archived in
+  the vault's Archives folder (`<NN> - Archives/01 - Projects/01 - Work/`, read only): if the client is only there, stop and ask. If unclear, list the folders and ask.
 - **Repo task state:** read `.claude/tasks/<ID>.md` in the repo if it exists (goal, changed objects, decisions, open questions).
 - **Changes:** git: `git log --stat <base>..HEAD` and `git diff <base>..HEAD` (base `test`, else `main`/`master`, else ask).
   TFVC: `tf history . /recursive /stopafter:10 /format:brief /noprompt`, or ask for the changeset numbers.
 - **This conversation:** the problem, the cause, decisions and why, tests that were run.
 
 ## Step 2: write the task note
-Target: `02 - Areas/01 - Work/<NN - Client>/<ID> - <title>.md` (Glob `<ID> - *.md` first).
+Target: `01 - Projects/01 - Work/<NN - Client>/<ID> - <title>.md` (Glob `<ID> - *.md` first).
 - **Not found:** create it from `templates/d365-task.md` (next to this file). Title: a short Polish description of the task.
 - **Found:** append `## Podsumowanie <YYYY-MM-DD>` at the **end** with the same sections as the template body (`### Opis`,
   `### Opis rozwiązania`, …). Don't change existing text. In the frontmatter, fill `branch_name`, `solution_name` and the

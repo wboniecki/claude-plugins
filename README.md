@@ -8,11 +8,11 @@ Personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 - **`/wb:devlog`** logs the current coding session to an Obsidian vault: what changed, why, problems and fixes, what I learned,
   and next steps.
   - Personal and dev projects get `01 - Projects/<…>/<Project>/_index.md` plus `Devlog/` notes.
-  - D365 work items get a `## Devlog` section appended to `02 - Areas/01 - Work/<Client>/<ID> - <title>.md`.
+  - D365 work items get a `## Devlog` section appended to `01 - Projects/01 - Work/<Client>/<ID> - <title>.md`.
   - Shared concept and tip notes go in `03 - Resources/00 - Personal/Dev/` (flat, with `type` and `area` properties).
   - X++ / D365 code from work becomes short memo cards in `03 - Resources/01 - Work/`.
   - Supports git (GitHub, Azure DevOps) and TFVC.
-- **`/wb:d365-task <ID> [client]`** (v0) dumps a finished D365 task into its note in `02 - Areas/01 - Work/<Client>/`:
+- **`/wb:d365-task <ID> [client]`** (v0) dumps a finished D365 task into its note in `01 - Projects/01 - Work/<Client>/`:
   description, solution per changed object, key code, tests. It reads the repo's `.claude/tasks/<ID>.md` if there is one,
   and offers memo cards.
 - **`/wb:session`** saves the current work session as a handoff note in `99 - Meta/Claude/Sessions/` (where it stopped, decisions,
