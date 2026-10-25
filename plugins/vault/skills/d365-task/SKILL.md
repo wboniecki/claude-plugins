@@ -8,59 +8,55 @@ allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 
 # /vault:d365-task: write a finished D365 task to Obsidian
 
-**v0, a soft entry point.** The user will tune it while using it. Keep it simple and follow it literally; see **Later** at the end.
+Built to be cheap, like `/vault:devlog`: the facts below are already collected, you write one brief, ask one question,
+and a subagent does all vault work and reads the diff. **Don't read, search or write the vault yourself**, don't run
+git or tf, and don't grep AOT objects.
 
-Use Claude's **Glob, Grep, Read, Write and Edit tools** for the vault. Use the shell only for `git`/`tf`.
-
-## Step 0: vault
+## Facts (collected before this skill loaded)
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" d365-task --args "$ARGUMENTS"`
 ```
-If it has `error`, show it and stop. Vault paths below are relative to `vault`; `paths.d365_clients` is the folder with the
-`<NN - Client>` folders and `paths.work_cards` the memo card folder.
+Template: `${CLAUDE_PLUGIN_ROOT}/skills/d365-task/templates/d365-task.md`,
+memo card format: `${CLAUDE_PLUGIN_ROOT}/skills/devlog/formats.md` (section **Memo card**).
 
-## Step 1: gather
-- **ID and client:** from the arguments, else from the branch name (`Sii_<ID>_<Description>` or `feature/<ID>-…`), else ask.
-  The client folder is one of `<d365_clients>/<NN - Client>/` (active clients). Finished clients are archived under
-  `paths.archives` (read only): if the client is only there, stop and ask. If unclear, list the folders and ask.
-- **Repo task state:** read `.claude/tasks/<ID>.md` in the repo if it exists (goal, changed objects, decisions, open questions).
-- **Changes:** git: `git log --stat <base>..HEAD` and `git diff <base>..HEAD` (base `test`, else `main`/`master`, else ask).
-  TFVC: `tf history . /recursive /stopafter:10 /format:brief /noprompt`, or ask for the changeset numbers.
-- **This conversation:** the problem, the cause, decisions and why, tests that were run.
+If the facts have `error`, show it and stop. If `source.kind` is `none`, ask which repo this is before going on.
 
-## Step 2: write the task note
-Target: `<d365_clients>/<NN - Client>/<ID> - <title>.md` (Glob `<ID> - *.md` first).
-- **Not found:** create it from `templates/d365-task.md` (next to this file). Title: a short Polish description of the task.
-- **Found:** append `## Podsumowanie <YYYY-MM-DD>` at the **end** with the same sections as the template body (`### Opis`,
-  `### Opis rozwiązania`, …). Add only sections that have content; skip empty ones (no "bez zmian" placeholders).
-  Don't change existing text, except checkbox status (see below). In the frontmatter, fill `branch_name`, `solution_name`
-  and the changeset key (`changeset/PR` or `changeset`, whichever exists) only if empty.
-- **Checkbox status:** tick `- [ ]` items in earlier summaries that are now done (tests the user reports as done,
-  to-dos the code now covers). Check to-dos about code yourself in the objects of the task's VS project (repo paths only),
-  instead of asking the user.
+## Step 1: target
+- **ID:** `id` (from the arguments, else the branch). Empty: ask in the Step 3 question.
+- **Client:** the folder of the one match in `task_notes`; else `client_arg` matched against `clients`; else ask.
+  The client only in `clients_archived` (or the note only in `task_notes_archived`): stop and ask, archives are read only.
+- **Note:** one match in `task_notes` = append a summary; none = a new note (title in the Step 3 question); several = ask.
 
-Content rules:
-- **Polish**, like the user's task notes. AOT names and code stay as they are.
-- `Opis rozwiązania`: one bullet per changed object (`Object`: what changed and why). Plain words.
-- `Kod`: only the key snippets (the CoC method or the core logic), not whole classes. Use ```` ```X++ fold ```` blocks.
-- `Testy`: a `- [ ]` checklist of the scenarios tested or still to test.
-- `Notatki` to-dos: short summaries of the remaining functional work. No build/compile items (they happen many times
-  during a task); mention build/compile only in the pre-PR check.
-- **No secrets** (keys, passwords, connection strings, tenant/subscription IDs). **Ask before business data**
-  (record values, customer/vendor names, amounts, environment URLs).
-- Never move, rename or delete anything in the vault.
+## Step 2: the brief (from this conversation + facts)
+Short bullets, in Polish (AOT names and code as they are):
+- **Opis:** what the task was about, 1–3 lines.
+- **Rozwiązanie:** per changed object, what changed and why (from the conversation; `changed` lists the files).
+- **Key code:** the objects and methods whose snippets belong in **Kod** (names only: the writer cuts them from the diff).
+- **Testy:** scenarios tested (done) and still to test.
+- **Notatki:** open questions, gotchas, remaining functional work. No build/compile to-dos.
+- **Done to-dos:** which of `task_note.open_todos` the conversation shows as done.
+- **Frontmatter:** branch, VS solution, changeset/PR when known (filled only where `task_note.empty_keys` lists them).
 
-## Step 3: memo cards
-Look at the code from this task. If a snippet is reusable on its own, offer up to 3 memo cards for `<work_cards>/`.
-Use the **Memo card** format in `../devlog/formats.md`: a short title that says what the code does, the code, an
-explanation only when needed, generic `Xyz…` names instead of client prefixes where it's easy. Grep `<work_cards>/` for the
-main class or method names first and link an existing card instead. Write them only after the user confirms.
+Data: names in code (AOT objects, client prefixes) are fine. Personal or customer data from records (names, addresses,
+e-mails, tax IDs, customers and vendors from data, amounts tied to them) never: use placeholders (`<Klient>`, `<Kwota>`).
+No secrets (keys, passwords, connection strings, tenant/subscription IDs).
 
-## Step 4: report
-List the created or changed notes as full paths, in one short list.
+## Step 3: one question
+Ask once, with AskUserQuestion, everything still open, in one call:
+- the title of a new note (propose a short Polish one), the ID or client when unknown;
+- **Memo cards** (multi-select, at most 3): snippets from this task reusable on their own. Check `memo_cards.titles`
+  first: a matching card is offered as "link <title>", not as a new card.
+Skip the question when there's nothing to ask.
+
+## Step 4: hand over
+Launch the `vault:d365-task-writer` agent with one prompt containing: the facts JSON, the brief, the target (note path or
+client + title), the picked memo cards, and the template and formats file paths. Wait for it.
+
+## Step 5: report
+Show the agent's list of notes as full paths (`<vault>/<path>`), in one short list.
 
 ## Later
 Ideas the user will decide on, so don't do these yet:
 - fill `timelog` from the repo's time report (`.claude/tasks/timereport.ps1 -Ticket <ID>`)
 - `url` to the work item (dropped for now)
-- merge with `/vault:devlog` work mode, which also appends to task notes
+- a connector to the D365 dev plugin (its repo config, base branch, AOT metadata index), one stable contract

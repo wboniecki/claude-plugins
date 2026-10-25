@@ -8,6 +8,10 @@ Commands:
     folders   the vault's folder tree, one folder per line, indented (plain text: cheaper than JSON)
     devlog    source control, D365 flag, project note, previous log, commits since it, new Learning files,
               existing Dev notes and areas (JSON); run it in the repo being logged
+    d365-task [--args "<ID> [client]"]
+              work item ID, client folders, the task note (summaries, open to-dos, empty frontmatter keys),
+              the repo task file, base branch, commits and changed files since it, memo card titles (JSON);
+              run it in the D365 repo. The full diff is left out: the writer agent reads it.
 
 The vault folder comes from --vault, else the env CLAUDE_PLUGIN_OPTION_VAULT_DIR (hooks only), else VAULT_DIR.
 The layout file (--layout / option layout_file, default "99 - Meta/Claude/vault.json") maps roles to vault-relative paths.
@@ -268,8 +272,89 @@ def cmd_devlog(vault, layout):
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 
+def note_state(path):
+    """What the writer needs from an existing task note without reading it whole."""
+    text = path.read_text(encoding="utf-8")
+    fm = frontmatter(path, {"branch_name", "solution_name", "changeset/PR", "changeset"})
+    return {"summaries": re.findall(r"^## (Podsumowanie .*)$", text, re.M),
+            "open_todos": [l.strip() for l in text.splitlines() if l.lstrip().startswith("- [ ]")][:40],
+            "empty_keys": [k for k, v in fm.items() if not v.strip('"')],
+            "lines": text.count("\n") + 1}
+
+
+def cmd_d365_task(vault, layout, args):
+    now = datetime.now()
+    out = {"today": now.strftime("%Y-%m-%d"), "vault": vault.as_posix(), "cwd": os.getcwd()}
+    words = args.split()
+    task_id = next((w for w in words if re.fullmatch(r"\d{4,6}", w)), "")
+    client_arg = " ".join(w for w in words if w != task_id)
+
+    top = run("git", "rev-parse", "--show-toplevel")
+    if top:
+        branch = run("git", "branch", "--show-current")
+        out["source"] = {"kind": "git", "root": top, "branch": branch, "head": run("git", "rev-parse", "--short", "HEAD")}
+        out.update(d365_facts(top))
+        if not task_id:
+            m = re.search(r"(?<!\d)(\d{4,6})(?!\d)", branch)
+            task_id = m.group(1) if m else ""
+        base = next((b for b in ("test", "main", "master")
+                     if b != branch and run("git", "rev-parse", "--verify", "-q", b)), "")
+        if base:
+            out["base"] = base
+            rng = f"{base}..HEAD"
+            out["commits"] = run("git", "log", "--no-merges", "--format=%h %ad %s", "--date=short", rng).splitlines()[:50]
+            out["changed"] = run("git", "diff", "--name-status", "-M", rng).splitlines()[:200]
+            out["diffstat"] = run("git", "diff", "--shortstat", base, "HEAD")
+        out["uncommitted"] = run("git", "status", "--porcelain").splitlines()[:50]
+    elif Path("$tf").exists() or run("tf", "workfold"):
+        out["source"] = {"kind": "tfvc", "history": run("tf", "history", ".", "/recursive", "/stopafter:10",
+                                                       "/format:brief", "/noprompt")[:3000]}
+        out.update({"d365": True, "signal": "tfvc"})
+    else:
+        out["source"] = {"kind": "none"}
+    out["id"] = task_id
+    if client_arg:
+        out["client_arg"] = client_arg
+
+    repo_task = Path(top or ".") / ".claude" / "tasks" / f"{task_id}.md"
+    if task_id and repo_task.is_file():
+        out["repo_task_file"] = {"path": repo_task.as_posix(), "text": repo_task.read_text(encoding="utf-8")[:6000]}
+
+    clients_rel = layout.get("d365_clients")
+    if clients_rel and (vault / clients_rel).is_dir():
+        clients = vault / clients_rel
+        out["clients"] = sorted(p.name for p in clients.iterdir() if p.is_dir() and re.match(r"\d\d - ", p.name))
+        archived = vault / layout.get("archives", "") / clients_rel if layout.get("archives") else None
+        if archived and archived.is_dir():
+            out["clients_archived"] = sorted(p.name for p in archived.iterdir() if p.is_dir())
+        if task_id:
+            notes = sorted(clients.glob(f"*/{task_id} - *.md"))
+            out["task_notes"] = [p.relative_to(vault).as_posix() for p in notes]
+            if len(notes) == 1:
+                out["task_note"] = note_state(notes[0])
+            if archived and archived.is_dir():
+                old = [p.relative_to(vault).as_posix() for p in archived.glob(f"*/{task_id} - *.md")]
+                if old:
+                    out["task_notes_archived"] = old
+
+    cards = layout.get("work_cards")
+    if cards and (vault / cards).is_dir():
+        out["memo_cards"] = {"folder": cards, "titles": sorted(p.stem for p in (vault / cards).glob("*.md"))}
+    print(json.dumps(out, ensure_ascii=False, indent=1))
+
+
+def take_flag(argv, flag):
+    if flag in argv:
+        i = argv.index(flag)
+        value = argv[i + 1] if i + 1 < len(argv) else ""
+        del argv[i:i + 2]
+        return value
+    return ""
+
+
 def main():
     take_vault_args(sys.argv)
+    args = take_flag(sys.argv, "--args")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "config"
     vault, layout, err = load()
     if err and (vault is None or cmd != "config"):
@@ -282,6 +367,8 @@ def main():
         print(cmd_folders(vault, layout))
     elif cmd == "devlog":
         cmd_devlog(vault, layout)
+    elif cmd == "d365-task":
+        cmd_d365_task(vault, layout, "" if args.startswith("$") else args)
     else:
         print(json.dumps({"error": f"unknown command: {cmd}"}))
     return 0
