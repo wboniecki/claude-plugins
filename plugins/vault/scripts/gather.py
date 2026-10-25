@@ -6,8 +6,8 @@ Stdlib only, Python 3.9+. Always exits 0 (a non-zero exit aborts the skill): err
 Commands:
     config    resolved vault folder, layout paths, enabled features, missing paths (JSON)
     folders   the vault's folder tree, one folder per line, indented (plain text: cheaper than JSON)
-    devlog    source control, mode guess, project note, previous log, commits since it, new Learning files,
-              existing Dev notes and areas, D365 clients (JSON); run it in the repo being logged
+    devlog    source control, D365 flag, project note, previous log, commits since it, new Learning files,
+              existing Dev notes and areas (JSON); run it in the repo being logged
 
 The vault folder comes from --vault, else the env CLAUDE_PLUGIN_OPTION_VAULT_DIR (hooks only), else VAULT_DIR.
 The layout file (--layout / option layout_file, default "99 - Meta/Claude/vault.json") maps roles to vault-relative paths.
@@ -173,6 +173,19 @@ def frontmatter(path, keys):
     return out
 
 
+def d365_facts(root):
+    """Is this a D365 F&O repo? Only sure signals: a model descriptor (<Package>/Descriptor/<Model>.xml, up to two
+    folders deep) or TFVC. The one place to plug in a connector to the D365 dev plugin later."""
+    root = Path(root)
+    if (root / "$tf").exists():
+        return {"d365": True, "signal": "tfvc"}
+    for pattern in ("*/Descriptor/*.xml", "*/*/Descriptor/*.xml", "*/*/*/Descriptor/*.xml"):
+        hit = next(root.glob(pattern), None)
+        if hit:
+            return {"d365": True, "signal": "descriptor", "descriptor": hit.relative_to(root).as_posix()}
+    return {"d365": False}
+
+
 def find_project(vault, layout, repo_url):
     for key in ("projects_personal", "projects_work"):
         root = layout.get(key)
@@ -194,19 +207,15 @@ def cmd_devlog(vault, layout):
         branch = run("git", "branch", "--show-current")
         out["source"] = {"kind": "git", "root": top, "remote": remote, "branch": branch,
                          "head": run("git", "rev-parse", "--short", "HEAD")}
-        m = re.search(r"(?<!\d)(\d{4,6})(?!\d)", branch)
-        work = bool(m) or "dev.azure.com" in remote
+        out.update(d365_facts(top))
     elif Path("$tf").exists() or run("tf", "workfold"):
-        out["source"] = {"kind": "tfvc", "history": run("tf", "history", ".", "/recursive", "/stopafter:10",
-                                                       "/format:brief", "/noprompt")[:3000]}
-        m, work, remote = None, True, ""
+        out["source"] = {"kind": "tfvc"}
+        out.update({"d365": True, "signal": "tfvc"})
+        remote = ""
     else:
         out["source"] = {"kind": "none"}
         print(json.dumps(out, ensure_ascii=False, indent=1))
         return
-    out["mode_guess"] = "work" if work else "project"
-    if m:
-        out["work_item_id"] = m.group(1)
 
     # project mode: project note, previous log, commits since it
     project, key = find_project(vault, layout, remote)
@@ -236,10 +245,7 @@ def cmd_devlog(vault, layout):
         out["project_suggested_name"] = Path(top).name.replace("-", " ").replace("_", " ").title()
 
     if top:
-        if out["mode_guess"] == "work":
-            base = next((b for b in ("test", "main", "master") if run("git", "rev-parse", "--verify", "-q", b)), "")
-            rng = [f"{base}..HEAD"] if base else ["-20"]
-        elif last_commit and run("git", "rev-parse", "--verify", "-q", last_commit + "^{commit}"):
+        if last_commit and run("git", "rev-parse", "--verify", "-q", last_commit + "^{commit}"):
             rng = [f"{last_commit}..HEAD"]
         else:
             rng = ["-20"]
@@ -259,13 +265,6 @@ def cmd_devlog(vault, layout):
                 areas.add(fm["area"])
             notes.append(f'{p.stem} | {fm.get("type", "")} | {fm.get("area", "")} | {fm.get("aliases", "")}')
         out["dev_notes"] = {"folder": dev, "areas": sorted(areas), "notes (name | type | area | aliases)": notes}
-
-    if out["mode_guess"] == "work" and layout.get("d365_clients"):
-        clients = vault / layout["d365_clients"]
-        out["clients"] = sorted(p.name for p in clients.iterdir() if p.is_dir() and re.match(r"\d\d - ", p.name))
-        if out.get("work_item_id"):
-            out["work_item_notes"] = [p.relative_to(vault).as_posix()
-                                      for p in clients.glob(f'*/{out["work_item_id"]} - *.md')]
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 

@@ -1,8 +1,8 @@
 ---
 name: devlog
-description: Log the current coding session (changes, decisions, problems solved, lessons) into the user's Obsidian vault, as a project devlog note or as a Devlog section in a D365 work-item note, plus concept, tip and memo card notes. Run only when the user types /vault:devlog.
+description: Log the current coding session (changes, decisions, problems solved, lessons) into the user's Obsidian vault as a project devlog note, plus concept, tip and memo card notes. D365 work items go to /vault:d365-task instead. Run only when the user types /vault:devlog.
 disable-model-invocation: true
-argument-hint: "[session topic] [--new-project] [--work <ID or client>]"
+argument-hint: "[session topic] [--new-project] [--project]"
 allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
@@ -23,12 +23,11 @@ Formats file for the subagent: `${CLAUDE_PLUGIN_ROOT}/skills/devlog/formats.md`
 If the facts have `error`, show it and stop (the vault folder is the plugin's `vault_dir` option).
 If `source.kind` is `none`, ask what this is before going on.
 
-## Step 1: mode and target
-- **Work item** when `--work` was given, or `mode_guess` is `work` (a work-item ID in the branch, Azure DevOps remote, TFVC).
-  Target: `work_item_notes` (one match) or a client from `clients` (ask if unclear). Commits not already in the note's
-  previous Devlog sections only.
-- **Project** otherwise. Target: `project.index`. If there's no `project` (or `--new-project`): ask personal or work and
-  the name (default `project_suggested_name`) in the Step 3 question.
+## Step 1: target
+- **D365 repo** (`d365` is true) and no `--project`: reply in one line "This is a D365 task: run `/vault:d365-task <ID>`
+  instead." and stop. `--project` logs it as a project anyway (e.g. a private X++ experiment).
+- Target: `project.index`. If there's no `project` (or `--new-project`): ask personal or work and the name
+  (default `project_suggested_name`) in the Step 3 question.
 
 ## Step 2: the brief (from this conversation + facts.commits)
 Write it for the subagent, in English, as short bullets:
@@ -37,17 +36,18 @@ Write it for the subagent, in English, as short bullets:
   text when it matters, screenshot paths if any were taken), **Learned**, one **Review** question, **Next** tasks.
 - **Lesson / records**: the `learning_new` files that belong to today, if any.
 - `last_commit` = newest sha covered, `commits` = how many.
-Leave out secrets. Ask before including business data (record values, customer or vendor names, amounts, environment URLs).
+Leave out secrets. Names in code (AOT objects, prefixes) are fine; personal or customer data from records (names,
+addresses, e-mails, tax IDs, customers and vendors from data) never: use placeholders (`<Customer>`, `<Amount>`).
 
 ## Step 3: one question
 Ask once, with AskUserQuestion, everything still open, in one call:
 - **Notes to write** (multi-select, at most 3 offered): concepts genuinely new to the user, reusable commands (tips), and for
   X++ / D365 work memo cards. Check `dev_notes` first: an existing note is offered as "add a line to <name>", not as a new note.
-- the project name/type when it's new; the client when it's unclear.
+- the project name/type when it's new.
 Skip the question when there's nothing to ask.
 
 ## Step 4: hand over
-Launch the `vault:devlog-writer` agent with one prompt containing: the facts JSON, the brief, the mode and target, the picks,
+Launch the `vault:devlog-writer` agent with one prompt containing: the facts JSON, the brief, the target, the picks,
 and the formats file path. Wait for it.
 
 ## Step 5: report
