@@ -1,7 +1,7 @@
 """Collect facts for the vault skills in one call, so a skill gets them before its first turn.
 
-Skills inject it with  !`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" <command>`.
-Stdlib only, Python 3.9+. Always exits 0: errors are part of the output, so the skill can report them.
+Skills inject it with  !`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" <command> --vault "${user_config.vault_dir}"`.
+Stdlib only, Python 3.9+. Always exits 0 (a non-zero exit aborts the skill): errors are part of the output.
 
 Commands:
     config    resolved vault folder, layout paths, enabled features, missing paths (JSON)
@@ -9,8 +9,8 @@ Commands:
     devlog    source control, mode guess, project note, previous log, commits since it, new Learning files,
               existing Dev notes and areas, D365 clients (JSON); run it in the repo being logged
 
-The vault folder comes from the plugin option vault_dir (env CLAUDE_PLUGIN_OPTION_VAULT_DIR), or VAULT_DIR.
-The layout file (option layout_file, default "99 - Meta/Claude/vault.json") maps roles to vault-relative paths.
+The vault folder comes from --vault, else the env CLAUDE_PLUGIN_OPTION_VAULT_DIR (hooks only), else VAULT_DIR.
+The layout file (--layout / option layout_file, default "99 - Meta/Claude/vault.json") maps roles to vault-relative paths.
 """
 import json
 import os
@@ -43,15 +43,34 @@ def env(*names):
     return ""
 
 
+ARGS = {}  # --vault / --layout given on the command line; they win over the env vars
+
+
+def take_vault_args(argv):
+    """Remove `--vault X` and `--layout X` from argv (in place) and remember them for load().
+
+    Skills pass them as `--vault "${user_config.vault_dir}"`: Claude Code substitutes the option into skill text,
+    but exports CLAUDE_PLUGIN_OPTION_* only to hooks, not to commands run through Bash or PowerShell.
+    """
+    for flag, key in (("--vault", "vault"), ("--layout", "layout")):
+        while flag in argv:
+            i = argv.index(flag)
+            if i + 1 < len(argv):
+                ARGS[key] = argv[i + 1].strip()
+                del argv[i:i + 2]
+            else:
+                del argv[i]
+
+
 def load():
     """Return (vault Path or None, layout dict, error or None)."""
-    raw = env("CLAUDE_PLUGIN_OPTION_VAULT_DIR", "VAULT_DIR")
-    if not raw:
-        return None, {}, "vault_dir is not set: set the vault plugin's vault_dir option, or the VAULT_DIR env var"
+    raw = ARGS.get("vault") or env("CLAUDE_PLUGIN_OPTION_VAULT_DIR", "VAULT_DIR")
+    if not raw or raw.startswith("${"):
+        return None, {}, "vault_dir is not set: set the vault plugin's vault_dir option (/plugin configure vault@wboniecki)"
     vault = Path(raw).expanduser()
     if not vault.is_dir():
         return None, {}, f"vault_dir does not exist: {vault}"
-    layout_rel = env("CLAUDE_PLUGIN_OPTION_LAYOUT_FILE", "VAULT_LAYOUT_FILE") or DEFAULT_LAYOUT_FILE
+    layout_rel = ARGS.get("layout") or env("CLAUDE_PLUGIN_OPTION_LAYOUT_FILE", "VAULT_LAYOUT_FILE") or DEFAULT_LAYOUT_FILE
     layout_path = vault / layout_rel
     if not layout_path.is_file():
         return vault, {}, f"layout file not found: {layout_rel}"
@@ -251,6 +270,7 @@ def cmd_devlog(vault, layout):
 
 
 def main():
+    take_vault_args(sys.argv)
     cmd = sys.argv[1] if len(sys.argv) > 1 else "config"
     vault, layout, err = load()
     if err and (vault is None or cmd != "config"):

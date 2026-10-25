@@ -32,7 +32,10 @@ Requirements: Claude Code, `python` 3.9+ on PATH.
 claude plugin marketplace add wboniecki/claude-plugins
 claude plugin install vault@wboniecki
 ```
-When asked, set `vault_dir` to the vault's absolute path on this machine. Restart Claude Code.
+Set `vault_dir` to the vault's absolute path on this machine, with forward slashes also on Windows (`C:/Users/me/vault`):
+when asked, with `/plugin configure vault@wboniecki`, or
+`echo '{"vault_dir":"<path>"}' | claude plugin configure vault@wboniecki --values-stdin`. Restart Claude Code.
+If you used the old `wb` plugin, remove `DEVLOG_VAULT` from `env` in `~/.claude/settings.json`: nothing reads it anymore.
 
 Then add the layout file to the vault (default path `99 - Meta/Claude/vault.json`, changeable with the `layout_file` option).
 Paths are relative to the vault; leave a key out to turn its feature off:
@@ -70,3 +73,8 @@ Paths are relative to the vault; leave a key out to turn its feature off:
 claude plugin marketplace update wboniecki
 claude plugin update vault@wboniecki
 ```
+
+## Tools
+
+`tools/skill_cost.py` (not part of the plugin) shows token usage per skill run from Claude Code transcripts,
+per thread (main conversation, subagents) and model: `python -I -B tools/skill_cost.py --skill devlog [--since YYYY-MM-DD]`.

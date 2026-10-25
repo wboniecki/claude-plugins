@@ -2,6 +2,7 @@
 name: session
 description: Save, list, search, resume, finish (archive) or delete Claude work sessions as handoff notes in the user's Obsidian vault, so work can continue in a new session or on another machine. Use when the user types /vault:session, or says things like "save this session", "show saved sessions", "where did we leave off", "last time we worked on X", "let's get back to X", or the Polish "zapisz sesję", "pokaż zapisane sesje", "ostatnio zajmowaliśmy się X", "wróćmy do X".
 argument-hint: "[save [topic] | list [phrase] [--archive] | resume <no|name> | finish <no|name> | delete <no|name>]"
+allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
 # /vault:session: session handoff notes in Obsidian
@@ -10,21 +11,20 @@ A session note is a **temporary handoff**: everything a fresh Claude needs to pi
 It is not a learning record. That's `/vault:devlog`. A session note lives while the topic is open, then goes to the archive.
 
 The skill runs on Linux (bash) and Windows (PowerShell). Use Claude's **Glob, Grep, Read, Write and Edit tools** for every
-vault operation. Use the shell only for `git`, `hostname` and reading the env var.
+vault operation. Use the shell only for `git` and `hostname`.
 
-## Step 0: find the vault
-Read `DEVLOG_VAULT`: `echo $DEVLOG_VAULT` in bash, or `$env:DEVLOG_VAULT` in PowerShell. If it's empty or the folder doesn't
-exist, **stop** and tell the user to add it to `~/.claude/settings.json` (`%USERPROFILE%\.claude\settings.json` on Windows):
+## Step 0: the vault
 ```json
-{ "env": { "DEVLOG_VAULT": "<absolute path to the vault folder>" } }
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
 ```
-then restart Claude Code. Never guess the path.
+If it has `error`, or `features.session` is false, show why and stop. Paths are relative to `vault`;
+`<sessions>` below is `paths.sessions`.
 
 | What | Where (relative to the vault) |
 | --- | --- |
-| Open sessions | `99 - Meta/Claude/Sessions/<YYYY-MM-DD> <Topic>.md` |
-| Finished sessions | `99 - Meta/Claude/Sessions/Archive/` |
-| Obsidian view of all sessions | `99 - Meta/Claude/Sessions/Sessions.base` |
+| Open sessions | `<sessions>/<YYYY-MM-DD> <Topic>.md` |
+| Finished sessions | `<sessions>/Archive/` |
+| Obsidian view of all sessions | `<sessions>/Sessions.base` |
 
 Templates are in `templates/` next to this file: `session.md` (the note) and `sessions.base` (the view). Read them before writing.
 `{{...}}` marks a placeholder; fill every one or delete the line.
@@ -48,12 +48,12 @@ If several match, list them and ask.
 2. **Context:** `hostname`, the current directory. If it's a git repo: `git rev-parse --show-toplevel`, the branch
    (`git branch --show-current`), `git rev-parse --short HEAD`, the remote URL (`git remote get-url origin`) and `git status --short`.
    Mention uncommitted changes in **State**: they won't be on another machine unless they're pushed.
-3. **Find an existing session** on the same topic: Grep `99 - Meta/Claude/Sessions/*.md` (not the archive) for the `dir`
+3. **Find an existing session** on the same topic: Grep `<sessions>/*.md` (not the archive) for the `dir`
    value and the topic keywords. If one clearly matches, **update it**; if it's unclear, ask.
    - Update: rewrite **Resume**, **State**, **Waiting for**, **Next steps** and **Commands** to the current state, add new
      rows to **Decisions**, append one line to **History**, set `updated`, `machine`, `status`, `waiting_for` and the git fields.
      Keep everything else.
-   - New: `99 - Meta/Claude/Sessions/<today> <Topic>.md` from `templates/session.md`. `Topic` is short and specific
+   - New: `<sessions>/<today> <Topic>.md` from `templates/session.md`. `Topic` is short and specific
      (`Game collection in Obsidian`, `TOML parser in my-rust`) and has no `\ / : * ? " < > | # ^ [ ]`.
 4. **Status:** `active` (just stopping for now), `paused` (blocked on something, which goes in `waiting_for`),
    `done` (use **Finish** instead). Infer it from the conversation; ask only if it's unclear.
@@ -73,7 +73,7 @@ If several match, list them and ask.
 - Keep it under about 120 lines. Bullets over paragraphs.
 
 ## List
-1. Glob `99 - Meta/Claude/Sessions/*.md` (plus `Archive/*.md` with `--archive`) and read each note's frontmatter.
+1. Glob `<sessions>/*.md` (plus `Archive/*.md` with `--archive`) and read each note's frontmatter.
 2. With a phrase: keep the notes whose name, `topic`, `waiting_for` or body match it (Grep, case-insensitive, try PL and EN words).
    If nothing matches, say so and show the full list.
 3. Show one table, newest `updated` first:
@@ -81,7 +81,7 @@ If several match, list them and ask.
    | No | Topic | Status | Waiting for | Updated | Machine |
    | --- | --- | --- | --- | --- | --- |
 
-   Below it, list each note's vault path (`99 - Meta/Claude/Sessions/…md`) so the user can open it in Obsidian.
+   Below it, list each note's vault path (`<sessions>/…md`) so the user can open it in Obsidian.
 4. **Stop** and wait. The user picks a number (then **Resume**), asks for something else, or gives up.
 
 ## Resume
@@ -108,6 +108,6 @@ Only on explicit request. Show the note's name, status and `updated`, ask whethe
 Deleted notes can't be recovered from the vault (Obsidian Sync's version history may still have them).
 
 ## Rules
-- **Only touch** notes in `99 - Meta/Claude/Sessions/` (and `Sessions.base`). Never rename, move or delete anything else in the vault.
+- **Only touch** notes in `<sessions>/` (and `Sessions.base`). Never rename, move or delete anything else in the vault.
 - One note per topic. Don't create a second note for a topic that has an open one; update it.
 - Never invent progress. If something wasn't verified in the session, say so in **State**.
