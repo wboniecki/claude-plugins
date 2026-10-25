@@ -3,7 +3,8 @@
 Usage:
     python -I -B plugins_check.py            # prints OK, or one line per difference (MISSING, NEW, STATE)
     python -I -B plugins_check.py --update   # rewrite the note from this device
-The vault comes from the plugin option vault_dir (or VAULT_DIR), see gather.py.
+    --report  always exit 0 (for skill injection, where a non-zero exit aborts the skill)
+    --vault <path>  the vault (skills pass the plugin option); else env, see gather.py
 """
 import argparse
 import json
@@ -13,7 +14,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script folder from sys.path
-from gather import load  # noqa: E402
+from gather import load, take_vault_args  # noqa: E402
 
 SECTIONS = ("Enabled", "Disabled", "Broken")
 
@@ -80,9 +81,16 @@ def diffs(vault, note):
 
 
 def main():
+    take_vault_args(sys.argv)
     ap = argparse.ArgumentParser()
     ap.add_argument("--update", action="store_true", help="rewrite the note from this device")
+    ap.add_argument("--report", action="store_true", help="always exit 0")
     args = ap.parse_args()
+    code = main_check(args)
+    return 0 if args.report else code
+
+
+def main_check(args):
     vault, layout, err = load()
     if err or not layout.get("plugins_note"):
         print(err or "plugins_note is not set in the vault layout file")

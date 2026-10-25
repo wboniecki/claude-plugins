@@ -3,6 +3,7 @@ name: accept
 description: Accept draft notes in the user's Obsidian vault - move them from the drafts folder to their mirrored target path and link them from the fitting MOC. Run only when the user types /vault:accept (or "akceptuj <note>", "akceptuj wszystko", "akceptuj ostatnią").
 disable-model-invocation: true
 argument-hint: "<draft name> | wszystko | ostatnia"
+allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
 # /vault:accept: drafts → their target, plus MOC links
@@ -10,18 +11,18 @@ argument-hint: "<draft name> | wszystko | ostatnia"
 Input: `$ARGUMENTS`.
 
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
 ```
 Waiting drafts (oldest first, newest last):
 ```
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py"`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}"`
 ```
 If config has `error`, or `features.accept` is false, show why and stop. Nothing waiting: say so and stop.
 
 ## 1. Move
 Pick the drafts from the input: a name (fuzzy, against the list above; ask if several match), `wszystko` / `all` → `--all`,
 `ostatnia` / `last` / "ostatnia notatka" → `--last`. Then run, once:
-`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py" <--all | --last | "<draft path>" ...>`
+`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" <--all | --last | "<draft path>" ...>`
 It prints `MOVED <path>`, `SKIP (exists) <path>` (a note is already there: tell the user, don't overwrite) or `NOT FOUND`.
 
 ## 2. Link from a MOC

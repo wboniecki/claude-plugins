@@ -7,6 +7,7 @@ Usage:
     python -I -B promote_drafts.py --all         # move every draft
     python -I -B promote_drafts.py --last        # move the newest draft
     python -I -B promote_drafts.py <draft> ...   # move these (vault path or relative to the drafts folder)
+--vault <path>: the vault (skills pass the plugin option); else env, see gather.py.
 Never overwrites an existing note: such a draft is skipped and reported. Exit 1 if anything was skipped or not found.
 """
 import argparse
@@ -15,10 +16,11 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script folder from sys.path
-from gather import load  # noqa: E402
+from gather import load, take_vault_args  # noqa: E402
 
 
 def main():
+    take_vault_args(sys.argv)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("drafts", nargs="*")
     ap.add_argument("--all", action="store_true")
@@ -28,7 +30,7 @@ def main():
     vault, layout, err = load()
     if err or not layout.get("drafts"):
         print(err or "drafts is not set in the vault layout file")
-        return 1
+        return 1 if (args.drafts or args.all or args.last) else 0  # listing is injected into a skill: exit 0
     vault = vault.resolve()
     drafts = (vault / layout["drafts"]).resolve()
     if not drafts.is_dir():

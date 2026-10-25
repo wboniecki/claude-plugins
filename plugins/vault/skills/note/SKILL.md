@@ -2,6 +2,7 @@
 name: note
 description: Turn an inbox note into a permanent one, research a topic on the web into a note or a structure of notes (parent + child notes, or a table/collection), or extend an existing note with researched data, in the user's Obsidian vault. New notes are drafts in mirrored folders; the user moves them. Use when the user types /vault:note or says process, przetwórz, inbox, "clean up fleeting notes", "zrób notatkę o…", "create a note about…", build a collection or list, or fill in / enrich a note.
 argument-hint: "[inbox note | topic | existing note] [what to fetch] [→ target folder]"
+allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
 # /vault:note: inbox, web or topic → draft note
@@ -9,11 +10,11 @@ argument-hint: "[inbox note | topic | existing note] [what to fetch] [→ target
 Input: `$ARGUMENTS`.
 
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
 ```
 Vault folders (pick targets from this, don't scan the vault):
 ```
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" folders`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" folders`
 ```
 If config has `error`, or `features.note` is false, show why and stop. Paths below are relative to `vault`.
 

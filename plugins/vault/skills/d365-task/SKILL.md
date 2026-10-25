@@ -3,6 +3,7 @@ name: d365-task
 description: Dump a finished D365 F&O work item (description, solution, changed objects, key code, tests) into its task note in the user's Obsidian vault, and offer X++ memo cards. Run only when the user types /vault:d365-task, usually right after "task <n> finished" in a D365 repo.
 disable-model-invocation: true
 argument-hint: "<work item ID> [client]"
+allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
 # /vault:d365-task: write a finished D365 task to Obsidian
@@ -13,7 +14,7 @@ Use Claude's **Glob, Grep, Read, Write and Edit tools** for the vault. Use the s
 
 ## Step 0: vault
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
 ```
 If it has `error`, show it and stop. Vault paths below are relative to `vault`; `paths.d365_clients` is the folder with the
 `<NN - Client>` folders and `paths.work_cards` the memo card folder.

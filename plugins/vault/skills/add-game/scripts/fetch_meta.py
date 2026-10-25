@@ -22,7 +22,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True  # bez __pycache__ w vaulcie (synchronizowałby się przez Obsidian Sync)
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # działa też z `py -I`
-from fetch_art import http_json, igdb_games, load_keys, norm  # noqa: E402
+from fetch_art import http_json, igdb_games, load_keys, norm, take_vault_args  # noqa: E402
 
 FIELDS = ["description", "genres", "developer", "publisher", "year"]
 
@@ -118,6 +118,7 @@ def moby_url(page):
 
 
 def main():
+    take_vault_args(sys.argv)
     ap = argparse.ArgumentParser()
     ap.add_argument("--title", required=True, help="tytuł do wyszukania (najlepiej angielski)")
     ap.add_argument("--platform", required=True, help='np. "Nintendo Switch"')

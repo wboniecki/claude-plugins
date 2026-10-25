@@ -3,6 +3,7 @@ name: devlog
 description: Log the current coding session (changes, decisions, problems solved, lessons) into the user's Obsidian vault, as a project devlog note or as a Devlog section in a D365 work-item note, plus concept, tip and memo card notes. Run only when the user types /vault:devlog.
 disable-model-invocation: true
 argument-hint: "[session topic] [--new-project] [--work <ID or client>]"
+allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 ---
 
 # /vault:devlog: write a session log to Obsidian
@@ -15,7 +16,7 @@ subagent does all vault work. **Don't read, search or write the vault yourself**
 
 ## Facts (collected before this skill loaded)
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" devlog`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" devlog`
 ```
 Formats file for the subagent: `${CLAUDE_PLUGIN_ROOT}/skills/devlog/formats.md`
 

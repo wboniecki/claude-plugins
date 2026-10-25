@@ -33,6 +33,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+# scripts -> add-game -> skills -> plugin root; gather zna vault i jego układ, więc działa z każdego cwd
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from gather import get, load, take_vault_args  # noqa: E402
+
 UA = "Mozilla/5.0 (obsidian-gry fetch_art)"
 KINDS = ["okladka", "baner", "logo", "screen", "produkt"]
 MAX_EDGE = {"okladka": 1200, "baner": 1920, "logo": 800, "screen": 1600, "produkt": 900}  # px, dłuższy bok
@@ -54,12 +59,7 @@ REGION_PREF = ["Poland", "United Kingdom", "North America", "World", "Europe", "
 
 def load_keys():
     keys = dict(os.environ)
-    # scripts -> add-game -> skills -> plugin root; gather.load() zna vault i jego układ, więc działa z każdego cwd
-    sys.dont_write_bytecode = True
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
-    from gather import get, load
-
-    vault, layout, _ = load()
+    vault, layout, _ = load()  # vault z --vault (take_vault_args w main) albo z env
     rel = get(layout, "games.keys_file") if vault else None
     path = vault / rel if rel else None
     if path and path.exists():
@@ -351,6 +351,7 @@ def safe_name(s):
 
 
 def main():
+    take_vault_args(sys.argv)
     ap = argparse.ArgumentParser()
     ap.add_argument("--title", required=True, help="tytuł do wyszukania (najlepiej angielski)")
     ap.add_argument("--platform", required=True, help='np. "Nintendo Switch"')
