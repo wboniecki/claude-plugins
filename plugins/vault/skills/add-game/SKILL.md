@@ -10,7 +10,7 @@ allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 Input: `$ARGUMENTS`: the title, optionally the platform and details of the user's copy (e.g. "Metroid Dread Switch, 120 zł Vinted, CIB PAL").
 
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' config`
 ```
 If it has `error`, or `features.add-game` is false, show why and stop. Below, `<cards>`, `<images>`, `<reference_card>`,
 `<template>` and `<gallery_view>` are the `games.*` paths, all relative to `vault`.
@@ -33,10 +33,10 @@ Keep it in sync with `<template>`.
 
 ## Steps
 1. **Duplicate check**: Grep `<cards>/**` for the title. If a card exists, update it (e.g. `status_gry` or copy details) instead of creating a new one.
-2. **Data**: `python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_meta.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" --title "<English title>" --platform "<Platforma>"` (set `PYTHONIOENCODING=utf-8` on Windows).
+2. **Data**: `python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_meta.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' --title "<English title>" --platform "<Platforma>"` (set `PYTHONIOENCODING=utf-8` on Windows).
    - Wikipedia first, IGDB as a fallback (e.g. remasters without their own article: "brak dokładnego artykułu"). If both fail, find the data with WebSearch and say so in the report.
    - Write a 2–4 sentence **Polish** description based on the English one. Translate genres into Polish where there's a natural word (Akcja, Przygodowa, Platformowa, RPG, Wyścigi, Strategia, Roguelike, Metroidvania, FPS...).
-3. **Art**: `python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_art.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" --title "<English title>" --platform "<Platforma>" --name "<card title>" --out "<vault>/<images>/<KOD>"`. It downloads the cover, the banner (background, always saved as `.jpg`), the logo, 2 screenshots and up to 3 product photos (`produkt1..3`: box back, 3D box, cartridge/disc) and shrinks them. The source order depends on the image type:
+3. **Art**: `python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_art.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' --title "<English title>" --platform "<Platforma>" --name "<card title>" --out "<vault>/<images>/<KOD>"`. It downloads the cover, the banner (background, always saved as `.jpg`), the logo, 2 screenshots and up to 3 product photos (`produkt1..3`: box back, 3D box, cartridge/disc) and shrinks them. The source order depends on the image type:
    - **Cover:** the Polish release from a Polish shop first (MediaMarkt, Empik, x-kom; Media Expert blocks bots), then the real box from LaunchBox (SteamGridDB covers are fan art). Empik covers are `.webp`; Obsidian shows them as is.
    - **LaunchBox images** prefer Polish/English releases (`REGION_PREF`: Poland, UK, North America...), so a German, French or Spanish box is used only when nothing else exists. Check `produkt1` (box back): if it is only in a foreign language, delete it and leave its embed out.
    - **Banner:** a SteamGridDB hero.

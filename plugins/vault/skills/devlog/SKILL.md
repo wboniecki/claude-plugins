@@ -16,7 +16,7 @@ subagent does all vault work. **Don't read, search or write the vault yourself**
 
 ## Facts (collected before this skill loaded)
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" devlog`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' devlog`
 ```
 Formats file for the subagent: `${CLAUDE_PLUGIN_ROOT}/skills/devlog/formats.md`
 

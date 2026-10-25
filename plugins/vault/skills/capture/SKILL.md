@@ -10,7 +10,7 @@ allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 Input: `$ARGUMENTS`.
 
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' config`
 ```
 If it has `error`, or `features.capture` is false, show why and stop. The note goes to `<vault>/<paths.inbox>/`.
 

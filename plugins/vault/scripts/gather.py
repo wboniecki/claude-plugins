@@ -1,6 +1,6 @@
 """Collect facts for the vault skills in one call, so a skill gets them before its first turn.
 
-Skills inject it with  !`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" <command> --vault "${user_config.vault_dir}"`.
+Skills inject it with  !`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" <command> --vault '${user_config.vault_dir}'`.
 Stdlib only, Python 3.9+. Always exits 0 (a non-zero exit aborts the skill): errors are part of the output.
 
 Commands:
@@ -53,14 +53,17 @@ ARGS = {}  # --vault / --layout given on the command line; they win over the env
 def take_vault_args(argv):
     """Remove `--vault X` and `--layout X` from argv (in place) and remember them for load().
 
-    Skills pass them as `--vault "${user_config.vault_dir}"`: Claude Code substitutes the option into skill text,
+    Skills pass them as `--vault '${user_config.vault_dir}'` (single quotes: an unset option stays a literal placeholder,
+    which the shell must not expand): Claude Code substitutes the option into skill text,
     but exports CLAUDE_PLUGIN_OPTION_* only to hooks, not to commands run through Bash or PowerShell.
     """
     for flag, key in (("--vault", "vault"), ("--layout", "layout")):
         while flag in argv:
             i = argv.index(flag)
             if i + 1 < len(argv):
-                ARGS[key] = argv[i + 1].strip()
+                value = argv[i + 1].strip()
+                if not value.startswith("${"):  # option not set: Claude Code leaves the placeholder as is
+                    ARGS[key] = value
                 del argv[i:i + 2]
             else:
                 del argv[i]

@@ -14,7 +14,7 @@ git or tf, and don't grep AOT objects.
 
 ## Facts (collected before this skill loaded)
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" d365-task --args "$ARGUMENTS"`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' d365-task --args "$ARGUMENTS"`
 ```
 Template: `${CLAUDE_PLUGIN_ROOT}/skills/d365-task/templates/d365-task.md`,
 memo card format: `${CLAUDE_PLUGIN_ROOT}/skills/devlog/formats.md` (section **Memo card**).
