@@ -9,8 +9,8 @@ so any structure works, and a feature without its folder is simply off.
 
 | Command | What it does |
 | --- | --- |
-| `/vault:devlog` | Logs the current coding session: a project devlog note (TLDR, done, decisions, problems, learned, next) or a section in a D365 work-item note, plus concept, tip and memo card notes you pick. |
-| `/vault:d365-task <ID> [client]` | Writes a finished D365 F&O task into its task note and offers X++ memo cards. |
+| `/vault:devlog` | Logs the current coding session: a project devlog note (TLDR, done, decisions, problems, learned, next), plus concept, tip and memo card notes you pick. In a D365 repo it points to `/vault:d365-task`. |
+| `/vault:d365-task <ID> [client]` | Writes a finished D365 F&O task into its task note (new note or a dated summary) and offers X++ memo cards. |
 | `/vault:session` | Saves, lists, resumes and archives handoff notes, so work continues in a new session or on another machine. |
 | `/vault:capture <text \| url>` | Quick inbox note: a summary of an article or video, `--raw` for just the link, or your own thought. |
 | `/vault:note` | Turns an inbox note, a topic or web research into a draft note (or a structure or collection), or extends an existing note. |
@@ -19,7 +19,7 @@ so any structure works, and a feature without its folder is simply off.
 | `/vault:plugins-check` | Compares the device's Obsidian community plugins with a list note. |
 
 Hooks:
-- after a successful `git push` or `tf checkin`, a one-line reminder to run `/vault:devlog`;
+- after a successful `git push` or `tf checkin`, a one-line reminder to run `/vault:devlog`, or `/vault:d365-task` after a TFVC check-in or a push in a D365 repo (a model `Descriptor` folder);
 - when a session starts in the vault, a plugin check that speaks only when something differs.
 
 Supports git (GitHub, Azure DevOps) and TFVC, on Linux, macOS and Windows.
@@ -49,7 +49,6 @@ Paths are relative to the vault; leave a key out to turn its feature off:
   "projects_personal": "Projects/Personal",
   "projects_work": "Projects/Work",
   "d365_clients": "Projects/Work",
-  "work_task_template": "Templates/Work Task.md",
   "dev_notes": "Resources/Dev",
   "work_cards": "Resources/Work",
   "sessions": "Claude/Sessions",
