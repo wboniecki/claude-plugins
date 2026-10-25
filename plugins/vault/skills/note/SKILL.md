@@ -10,11 +10,11 @@ allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
 Input: `$ARGUMENTS`.
 
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' config`
 ```
 Vault folders (pick targets from this, don't scan the vault):
 ```
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" folders`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' folders`
 ```
 If config has `error`, or `features.note` is false, show why and stop. Paths below are relative to `vault`.
 

@@ -15,7 +15,7 @@ vault operation. Use the shell only for `git` and `hostname`.
 
 ## Step 0: the vault
 ```json
-!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault "${user_config.vault_dir}" --layout "${user_config.layout_file}" config`
+!`python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" --vault '${user_config.vault_dir}' --layout '${user_config.layout_file}' config`
 ```
 If it has `error`, or `features.session` is false, show why and stop. Paths are relative to `vault`;
 `<sessions>` below is `paths.sessions`.

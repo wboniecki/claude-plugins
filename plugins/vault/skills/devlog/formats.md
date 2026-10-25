@@ -159,29 +159,3 @@ category: {{X++ | Database | Environment | Reporting | Other}}
 {{the code}}
 ```
 ```
-
-## Work-item Devlog section (appended at the end of the task note)
-```markdown
-
-## Devlog {{YYYY-MM-DD}}
-**Source:** {{git: branch + short sha(s) | TFVC: changeset number(s)}}
-
-### Changed
-- {{AOT element / file}}: {{what changed}}
-
-### Why
-- {{decision}}: {{reason}}
-
-### Problems & fixes
-- **{{symptom or compiler error}}**: {{cause}} → {{fix}}
-
-### Learned
-- [[{{Dev note path}}|{{Concept}}]]: {{takeaway}}
-
-### Next steps
-- [ ] {{task}}
-```
-Under about 40 lines. In the task note's frontmatter fill `branch_name`, `solution_name` and the changeset key
-(`changeset/PR` or `changeset`, whichever exists) only if empty. Existing text stays untouched.
-New task note: copy the user's work task template, resolve Templater tags by hand (`tp.date.now(...)` → today,
-`tp.file.title` → the note title), one-line description under the heading, then the section.

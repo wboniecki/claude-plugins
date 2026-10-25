@@ -1,7 +1,8 @@
 """Hook handlers for the vault plugin. Reads the hook event JSON on stdin and prints nothing unless it has something to say.
 
     hooks.py push           PostToolUse (Bash/PowerShell): after a successful `git push` or `tf checkin`,
-                            remind to run /vault:devlog. Force pushes (rewritten history) are ignored.
+                            remind to run /vault:d365-task (TFVC, or a D365 repo) or /vault:devlog.
+                            Force pushes (rewritten history) are ignored.
     hooks.py session-start  SessionStart: in the vault, compare Obsidian community plugins with the plugin list note
                             and report only differences.
 """
@@ -33,6 +34,13 @@ def emit(event, context):
     print(json.dumps({"hookSpecificOutput": {"hookEventName": event, "additionalContext": context}}))
 
 
+def is_d365(cwd):
+    from gather import d365_facts, run
+
+    top = run("git", "rev-parse", "--show-toplevel", cwd=cwd)
+    return bool(top) and d365_facts(top)["d365"]
+
+
 def on_push(data):
     cmd = text_of((data.get("tool_input") or {}).get("command", ""))
     out = text_of(data.get("tool_response"))
@@ -41,11 +49,12 @@ def on_push(data):
             return
         if not re.search(r"->|\[new (?:branch|tag)\]", out):
             return
+        skill = "/vault:d365-task" if is_d365(data.get("cwd") or os.getcwd()) else "/vault:devlog"
         emit("PostToolUse", "A git push just succeeded. End your reply with one line: "
-                            "Pushed. Run /vault:devlog to log it to Obsidian. Do not run /vault:devlog yourself.")
+                            f"Pushed. Run {skill} to log it to Obsidian. Do not run {skill} yourself.")
     elif TF_CHECKIN.search(cmd) and re.search(r"Changeset #?\d+", out, re.I):
         emit("PostToolUse", "A TFVC check-in just created a changeset. End your reply with one line: "
-                            "Checked in. Run /vault:devlog to log it to Obsidian. Do not run /vault:devlog yourself.")
+                            "Checked in. Run /vault:d365-task to log it to Obsidian. Do not run /vault:d365-task yourself.")
 
 
 def on_session_start(data):
