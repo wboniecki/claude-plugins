@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script folder from sys.path
-from gather import load, take_vault_args  # noqa: E402
+from gather import load, take_vault_args, utf8_stdio  # noqa: E402
 
 SECTIONS = ("Enabled", "Disabled", "Broken")
 
@@ -81,6 +81,7 @@ def diffs(vault, note):
 
 
 def main():
+    utf8_stdio()
     take_vault_args(sys.argv)
     ap = argparse.ArgumentParser()
     ap.add_argument("--update", action="store_true", help="rewrite the note from this device")

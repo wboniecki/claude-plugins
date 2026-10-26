@@ -16,10 +16,11 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script folder from sys.path
-from gather import load, take_vault_args  # noqa: E402
+from gather import load, take_vault_args, utf8_stdio  # noqa: E402
 
 
 def main():
+    utf8_stdio()
     take_vault_args(sys.argv)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("drafts", nargs="*")

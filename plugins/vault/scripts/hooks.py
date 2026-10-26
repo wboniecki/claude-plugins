@@ -79,6 +79,8 @@ def on_session_start(data):
 
 
 def main():
+    from gather import utf8_stdio
+    utf8_stdio()
     try:
         data = json.load(sys.stdin)
     except ValueError:

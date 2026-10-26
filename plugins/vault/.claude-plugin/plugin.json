@@ -1,7 +1,7 @@
 {
   "name": "vault",
   "displayName": "Obsidian vault workflow",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Write work into an Obsidian vault from any repo: devlogs of coding sessions, finished D365 tasks, session handoff notes, quick captures, notes from the inbox or the web, and game collection cards. The vault layout comes from a JSON file in the vault, so any folder structure works.",
   "author": {
     "name": "Wiktor Boniecki",
