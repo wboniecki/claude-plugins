@@ -21,7 +21,8 @@ Don't search the vault: everything you need is in facts. Read only the notes you
      `<project>/Devlog/<today> <Topic>.md`.
    - Update `_index.md`: the Devlog list, Decisions, status/url/Stack. Nothing else.
 2. **Picks**: write each new concept, tip or memo card, or add one line to an existing concept (named in facts.dev_notes).
-   Reuse an area from `facts.dev_notes.areas`; a new lowercase one only when none fits. Exactly one area per note.
+   Reuse an area from `facts.dev_notes.area_folders`; a new lowercase one only when none fits. Exactly one area per note.
+   The note goes into its area's subfolder (see "Dev notes" in the formats).
    Write a note **before** any link to it. A 0-byte file is an Obsidian placeholder and can be overwritten;
    any other existing file you weren't told to change: stop and say so.
 3. **Reply** with only the list of notes created or changed (vault-relative paths), one per line.

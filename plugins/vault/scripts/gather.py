@@ -270,16 +270,20 @@ def cmd_devlog(vault, layout):
         if rng[0].endswith("..HEAD"):
             out["diffstat"] = run("git", "diff", "--shortstat", rng[0].replace("..HEAD", ""), "HEAD")
 
-    # existing Dev notes: reuse areas, link instead of duplicating
+    # existing Dev notes: reuse areas, link instead of duplicating. One subfolder per area,
+    # named by the folders existing notes sit in (e.g. claude-code -> "Claude Code")
     dev = layout.get("dev_notes")
     if dev and (vault / dev).is_dir():
-        notes, areas = [], set()
-        for p in sorted((vault / dev).glob("*.md")):
+        root = vault / dev
+        notes, area_folders = [], {}
+        for p in sorted(root.rglob("*.md")):
             fm = frontmatter(p, {"type", "area", "aliases"})
-            if fm.get("area"):
-                areas.add(fm["area"])
-            notes.append(f'{p.stem} | {fm.get("type", "")} | {fm.get("area", "")} | {fm.get("aliases", "")}')
-        out["dev_notes"] = {"folder": dev, "areas": sorted(areas), "notes (name | type | area | aliases)": notes}
+            if fm.get("area") and p.parent != root:
+                area_folders.setdefault(fm["area"], p.parent.relative_to(root).as_posix())
+            rel = p.relative_to(root).with_suffix("").as_posix()
+            notes.append(f'{rel} | {fm.get("type", "")} | {fm.get("area", "")} | {fm.get("aliases", "")}')
+        out["dev_notes"] = {"folder": dev, "area_folders": dict(sorted(area_folders.items())),
+                            "notes (path | type | area | aliases)": notes}
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 

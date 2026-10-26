@@ -66,6 +66,8 @@ Paths are relative to the vault; leave a key out to turn its feature off:
 }
 ```
 
+Dev notes (concepts, tips) sit in one subfolder of `dev_notes` per `area`, e.g. `Resources/Dev/Claude Code/`.
+
 ## Update
 
 ```
