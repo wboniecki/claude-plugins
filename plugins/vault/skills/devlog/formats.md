@@ -90,7 +90,11 @@ tags:
 On every run: add a new log to **Devlog** (newest last), significant decisions to **Decisions**, and update
 `status`, `url` or **Stack** when they changed. Nothing else.
 
-## Concept note: `<dev_notes>/<Concept>.md`
+## Dev notes: `<dev_notes>/<area folder>/<Name>.md`
+One subfolder per area: the folder from `facts.dev_notes.area_folders`. A new area gets a new folder named in
+Title Case with spaces (`ci-cd` → `Ci Cd`). Links to Dev notes use the path from `facts.dev_notes.notes`.
+
+## Concept note: `<dev_notes>/<area folder>/<Concept>.md`
 ```markdown
 ---
 type: concept
@@ -120,7 +124,7 @@ first_seen: "[[{{log path}}|{{log title}}]]"
 ```
 Existing concept: add one line under **How I used it**. That is the only allowed change.
 
-## Tip note: `<dev_notes>/<Tip>.md`
+## Tip note: `<dev_notes>/<area folder>/<Tip>.md`
 ```markdown
 ---
 type: tip
