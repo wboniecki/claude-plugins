@@ -47,6 +47,14 @@ def env(*names):
     return ""
 
 
+def utf8_stdio():
+    """Read and write stdin/stdout/stderr as UTF-8. On Windows a pipe defaults to the ANSI code page (cp1252),
+    so printing Polish text raises UnicodeEncodeError, and -I ignores PYTHONUTF8 / PYTHONIOENCODING."""
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        if stream is not None:
+            stream.reconfigure(encoding="utf-8")
+
+
 ARGS = {}  # --vault / --layout given on the command line; they win over the env vars
 
 
@@ -356,6 +364,7 @@ def take_flag(argv, flag):
 
 
 def main():
+    utf8_stdio()
     take_vault_args(sys.argv)
     args = take_flag(sys.argv, "--args")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "config"

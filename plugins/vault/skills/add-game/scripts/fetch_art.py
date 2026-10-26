@@ -36,7 +36,7 @@ from pathlib import Path
 # scripts -> add-game -> skills -> plugin root; gather zna vault i jego układ, więc działa z każdego cwd
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
-from gather import get, load, take_vault_args  # noqa: E402
+from gather import get, load, take_vault_args, utf8_stdio  # noqa: E402
 
 UA = "Mozilla/5.0 (obsidian-gry fetch_art)"
 KINDS = ["okladka", "baner", "logo", "screen", "produkt"]
@@ -351,6 +351,7 @@ def safe_name(s):
 
 
 def main():
+    utf8_stdio()
     take_vault_args(sys.argv)
     ap = argparse.ArgumentParser()
     ap.add_argument("--title", required=True, help="tytuł do wyszukania (najlepiej angielski)")
