@@ -2,7 +2,7 @@
 name: session
 description: Save, list, search, resume, finish (archive) or delete Claude work sessions as handoff notes in the user's Obsidian vault, so work can continue in a new session or on another machine. Use when the user types /vault:session, or says things like "save this session", "show saved sessions", "where did we leave off", "last time we worked on X", "let's get back to X", or the Polish "zapisz sesję", "pokaż zapisane sesje", "ostatnio zajmowaliśmy się X", "wróćmy do X".
 argument-hint: "[save [topic] | list [phrase] [--archive] | resume <no|name> | finish <no|name> | delete <no|name>]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *)
 ---
 
 # /vault:session: session handoff notes in Obsidian

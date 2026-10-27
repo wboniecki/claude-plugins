@@ -2,7 +2,7 @@
 name: capture
 description: Quickly capture a thought, link, article or video as an inbox note in the user's Obsidian vault, from any repo. Summarizes links by default (TL;DR + key points); saves just the link with --raw. Use when the user types /vault:capture or says capture, zapisz, notatka szybka, "save this", streść (to), podsumuj, summarize, sum up, tl;dr (summary), or zapisz link, zakładka, bookmark, save link, read later (raw), or pastes a URL or text to keep for later.
 argument-hint: "<text | url> [comment] [--raw]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *)
 ---
 
 # /vault:capture: a quick inbox note

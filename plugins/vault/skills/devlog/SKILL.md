@@ -3,7 +3,7 @@ name: devlog
 description: Log the current coding session (changes, decisions, problems solved, lessons) into the user's Obsidian vault as a project devlog note, plus concept, tip and memo card notes. D365 work items go to /vault:d365-task instead. Run only when the user types /vault:devlog.
 disable-model-invocation: true
 argument-hint: "[session topic] [--new-project] [--project]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *)
 ---
 
 # /vault:devlog: write a session log to Obsidian

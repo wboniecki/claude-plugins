@@ -3,7 +3,7 @@ name: d365-task
 description: Dump a finished D365 F&O work item (description, solution, changed objects, key code, tests) into its task note in the user's Obsidian vault, and offer X++ memo cards. Run only when the user types /vault:d365-task, usually right after "task <n> finished" in a D365 repo.
 disable-model-invocation: true
 argument-hint: "<work item ID> [client]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *)
 ---
 
 # /vault:d365-task: write a finished D365 task to Obsidian

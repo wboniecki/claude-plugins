@@ -3,8 +3,9 @@
     hooks.py push           PostToolUse (Bash/PowerShell): after a successful `git push` or `tf checkin`,
                             remind to run /vault:d365-task (TFVC, or a D365 repo) or /vault:devlog.
                             Force pushes (rewritten history) are ignored.
-    hooks.py session-start  SessionStart: in the vault, compare Obsidian community plugins with the plugin list note
-                            and report only differences.
+    hooks.py session-start  SessionStart: anywhere, point out a missing permissions.allow rule for the plugin's scripts
+                            (auto mode blocks the skills' `!` injection without it); in the vault, compare Obsidian
+                            community plugins with the plugin list note and report only differences.
 """
 import json
 import os
@@ -18,6 +19,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script 
 GIT_PUSH = re.compile(r"(?:^|[;&|(]\s*|\s)git(?:\s+-C\s+\S+)?\s+push\b")
 FORCE = re.compile(r"\s(?:-f|--force(?:-with-lease)?(?:=\S*)?|\+\S+)(?=\s|$)")
 TF_CHECKIN = re.compile(r"\btf(?:\.exe)?\s+checkin\b", re.I)
+
+# Allow rules for the plugin's scripts in the user's settings.json: plugins can't ship permission rules, and auto mode
+# blocks the skills' `!` injection without one. No user name in them, so they fit every machine.
+ALLOW_RULES = {
+    "Bash": ['Bash(python -I -B "*/plugins/cache/wboniecki/vault/*")'],
+    "PowerShell": ['PowerShell(python -I -B "*/plugins/cache/wboniecki/vault/*")',
+                   'PowerShell(python -I -B "*\\plugins\\cache\\wboniecki\\vault\\*")'],
+}
 
 
 def text_of(value):
@@ -57,25 +66,58 @@ def on_push(data):
                             "Checked in. Run /vault:d365-task to log it to Obsidian. Do not run /vault:d365-task yourself.")
 
 
-def on_session_start(data):
+def missing_allow_rules():
+    """The ALLOW_RULES for this OS when ~/.claude/settings.json has no rule for the plugin; [] for a --plugin-dir run or unreadable settings."""
+    root = os.environ.get("CLAUDE_PLUGIN_ROOT", "").replace("\\", "/")
+    if "/plugins/cache/" not in root:
+        return []
+    config = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+    try:
+        settings = json.loads((config / "settings.json").read_text(encoding="utf-8"))
+        allow = settings.get("permissions", {}).get("allow", [])
+    except (OSError, ValueError, AttributeError):
+        return []
+    tool = "PowerShell" if os.name == "nt" else "Bash"
+    if any(isinstance(r, str) and r.startswith(tool + "(") and "wboniecki/vault" in r.replace("\\", "/") for r in allow):
+        return []  # any rule of the user's own for the plugin counts
+    return ALLOW_RULES[tool]
+
+
+def plugin_diffs(data):
     from gather import load
     from plugins_check import diffs
 
     vault, layout, err = load()
     if err or not layout.get("plugins_note"):
-        return
+        return ""
     try:
         cwd = Path(data.get("cwd") or os.getcwd()).resolve()
         if cwd != vault.resolve():
-            return
+            return ""
     except OSError:
-        return
+        return ""
     found = diffs(vault, vault / layout["plugins_note"])
-    if found:
-        emit("SessionStart", "Obsidian community plugins on this device differ from "
-                             f"'{layout['plugins_note']}':\n" + "\n".join(found) +
-                             "\nTell the user briefly at the start of your first reply. If the change was on purpose, "
-                             "offer /vault:plugins-check --update.")
+    if not found:
+        return ""
+    return ("Obsidian community plugins on this device differ from "
+            f"'{layout['plugins_note']}':\n" + "\n".join(found) +
+            "\nTell the user briefly at the start of your first reply. If the change was on purpose, "
+            "offer /vault:plugins-check --update.")
+
+
+def on_session_start(data):
+    parts = []
+    rules = missing_allow_rules()
+    if rules:
+        parts.append("The vault plugin's skills run its Python scripts at start, and auto mode blocks them without an allow rule. "
+                     "At the start of your first reply, tell the user in one line to add these entries to permissions.allow "
+                     "in ~/.claude/settings.json, then show them as JSON:\n" + ",\n".join(json.dumps(r) for r in rules) +
+                     "\nDo not edit settings.json yourself.")
+    diff = plugin_diffs(data)
+    if diff:
+        parts.append(diff)
+    if parts:
+        emit("SessionStart", "\n\n".join(parts))
 
 
 def main():

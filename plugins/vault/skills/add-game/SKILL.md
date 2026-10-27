@@ -2,7 +2,7 @@
 name: add-game
 description: Add a game to the user's game collection in their Obsidian vault as a card note (cover, logo, screenshots, Polish description, links), with data from Wikipedia/IGDB and art from Polish shops, SteamGridDB, LaunchBox and IGDB. Use when the user types /vault:add-game or says dodaj grę, add game, "kupiłem grę", or wants a game on the wishlist (lista życzeń).
 argument-hint: <tytuł> [platforma] [szczegóły kopii: cena, kompletność, region, gdzie kupione, status]
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_meta.py" *) Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_art.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_meta.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/skills/add-game/scripts/fetch_art.py" *)
 ---
 
 # Dodaj grę do kolekcji

@@ -2,7 +2,7 @@
 name: note
 description: Turn an inbox note into a permanent one, research a topic on the web into a note or a structure of notes (parent + child notes, or a table/collection), or extend an existing note with researched data, in the user's Obsidian vault. New notes are drafts in mirrored folders; the user moves them. Use when the user types /vault:note or says process, przetwórz, inbox, "clean up fleeting notes", "zrób notatkę o…", "create a note about…", build a collection or list, or fill in / enrich a note.
 argument-hint: "[inbox note | topic | existing note] [what to fetch] [→ target folder]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *)
 ---
 
 # /vault:note: inbox, web or topic → draft note

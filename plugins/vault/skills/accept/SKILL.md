@@ -3,7 +3,7 @@ name: accept
 description: Accept draft notes in the user's Obsidian vault - move them from the drafts folder to their mirrored target path and link them from the fitting MOC. Run only when the user types /vault:accept (or "akceptuj <note>", "akceptuj wszystko", "akceptuj ostatnią").
 disable-model-invocation: true
 argument-hint: "<draft name> | wszystko | ostatnia"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/gather.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/promote_drafts.py" *)
 ---
 
 # /vault:accept: drafts → their target, plus MOC links
