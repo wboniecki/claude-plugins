@@ -31,7 +31,7 @@ If `source.kind` is `none`, ask what this is before going on.
 
 ## Step 2: the brief (from this conversation + facts.commits)
 Write it for the subagent, in English, as short bullets:
-- **Topic**: at most 5 words (the user's argument if given). It names a new log; when `project.today_log` exists it is the session heading.
+- **Topic**: at most 5 words (the user's argument if given). It names a new log; when appending to a log it is the session heading.
 - **Goal**, **Done** (outcomes, max 5), **Decisions** (non-obvious, with why), **Problems** (symptom: cause → fix, exact error
   text when it matters, screenshot paths if any were taken), **Learned**, one **Review** question, **Next** tasks.
 - **Lesson / records**: the `learning_new` files that belong to today, if any.
@@ -44,11 +44,14 @@ Ask once, with AskUserQuestion, everything still open, in one call:
 - **Notes to write** (multi-select, at most 3 offered): concepts genuinely new to the user, reusable commands (tips), and for
   X++ / D365 work memo cards. Check `dev_notes` first: an existing note is offered as "add a line to <name>", not as a new note.
 - the project name/type when it's new.
+- **Where to write** (single select), when `project.today_logs` has logs or this conversation already wrote a devlog for
+  this project: first "New log: `<today> <Topic>`" (Recommended), then "Append to <log>" for every one of those logs
+  (when they don't all fit, the user names one under Other). Appending is always the user's choice, never the default.
 Skip the question when there's nothing to ask.
 
 ## Step 4: hand over
 Launch the `vault:devlog-writer` agent with one prompt containing: the facts JSON, the brief, the target, the picks,
-and the formats file path. Wait for it.
+`log: new` or `log: append <path>` (the Where to write answer; `new` when it wasn't asked), and the formats file path. Wait for it.
 
 ## Step 5: report
 Show the agent's list of notes as full paths (`<vault>/<path>`), plus one sentence on what's worth rereading.
