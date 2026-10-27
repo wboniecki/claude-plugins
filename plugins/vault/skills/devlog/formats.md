@@ -48,7 +48,7 @@ tags:
 - About 25 lines per session. Done: at most 5 bullets. Decisions: only non-obvious ones. Problems: one line each,
   a screenshot only for visual (UI/layout) problems when the image exists.
 - Drop the **Lesson** line when no lesson came up today; drop empty sections.
-- **Appending** (a log dated today exists): add a new `## Session HH:MM — <topic>` at the end, rewrite **TLDR** so it
+- **Appending** (only when the user chose to append to a log dated today): add a new `## Session HH:MM — <topic>` at the end, rewrite **TLDR** so it
   covers all sessions of the day, add a **Lesson** link if a new lesson came up, update `last_commit` and `commits`.
   Don't rename the file and don't change the H1.
 

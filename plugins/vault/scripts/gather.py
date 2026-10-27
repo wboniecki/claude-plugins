@@ -247,7 +247,7 @@ def cmd_devlog(vault, layout):
             out["project"]["newest_log"] = newest.relative_to(vault).as_posix()
             today = [p for p in logs if p.name.startswith(out["today"])]
             if today:
-                out["project"]["today_log"] = today[-1].relative_to(vault).as_posix()
+                out["project"]["today_logs"] = [p.relative_to(vault).as_posix() for p in today]
         # Learning workspace files newer than the previous log
         learning = project / "Learning"
         if learning.is_dir():

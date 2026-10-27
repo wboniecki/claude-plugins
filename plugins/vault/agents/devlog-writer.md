@@ -17,8 +17,8 @@ Don't search the vault: everything you need is in facts. Read only the notes you
 ## Steps
 1. **Project log**
    - No `_index.md` yet: create it from the format.
-   - `facts.project.today_log` exists: append a session to it (see "Appending" in the formats). Otherwise create
-     `<project>/Devlog/<today> <Topic>.md`.
+   - The prompt says `log: append <path>`: append a session to that log (see "Appending" in the formats).
+     Otherwise create `<project>/Devlog/<today> <Topic>.md`; if that file already exists, stop and say so.
    - Update `_index.md`: the Devlog list, Decisions, status/url/Stack. Nothing else.
 2. **Picks**: write each new concept, tip or memo card, or add one line to an existing concept (named in facts.dev_notes).
    Reuse an area from `facts.dev_notes.area_folders`; a new lowercase one only when none fits. Exactly one area per note.
