@@ -30,6 +30,7 @@ Don't search the vault: everything you need is in facts. Read only the notes you
 ## Rules
 - English (unless the brief says otherwise). Plain Markdown, valid YAML; quote values containing `[[`, `:` or `#`.
   No Templater or community-plugin syntax.
+- PRs and commits in the note body are links to the repo host (see "Links to PRs and commits" in the formats).
 - Keep the brief's facts; don't invent progress, commands or errors. Cut filler: short bullets, no restating.
 - Never rename, move or delete anything. Only touch the notes listed above.
 - No secrets (tokens, keys, passwords, connection strings, tenant/subscription IDs). Names in code are fine; personal or

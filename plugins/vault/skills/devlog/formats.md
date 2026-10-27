@@ -3,6 +3,14 @@
 `{{...}}` is a placeholder: fill it, or drop the line when there's nothing to say. Never leave `{{` in a note.
 Links: full vault path without `.md`, plus a display name: `[[01 - Projects/00 - Personal/X/_index|X]]`.
 
+### Links to PRs and commits
+PRs and commits in the note body are web links to the repo host. Repo URL: `facts.source.remote`; when it's empty
+(a session without git), the `repo:` key of the project's `_index.md`.
+- GitHub (`https://github.com/<owner>/<repo>`): PR `[#8](<repo>/pull/8)`, commit ``[`a4684d7`](<repo>/commit/a4684d7)``.
+- Azure DevOps (`https://dev.azure.com/…/_git/<repo>`): PR `[#8](<repo>/pullrequest/8)`, commit ``[`a4684d7`](<repo>/commit/a4684d7)``.
+- Another host or no repo URL: plain text (`PR #8`, `` `a4684d7` ``).
+Frontmatter stays plain: `last_commit` is a bare sha (gather reads it).
+
 ## Session log: `<project>/Devlog/YYYY-MM-DD <Topic>.md`
 Topic: what the first session was about, at most 5 words. The title never changes after the note is created.
 
@@ -26,7 +34,7 @@ tags:
 **Goal:** {{one sentence}}
 
 ### Done
-- {{outcome, not a file list}}; PR/commit `{{sha}}` only when it's the point
+- {{outcome, not a file list}}; PR/commit only when it's the point, linked (see Links to PRs and commits)
 
 ### Decisions
 - {{decision}}: {{why, one line}}
