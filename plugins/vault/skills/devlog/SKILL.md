@@ -36,6 +36,8 @@ Write it for the subagent, in English, as short bullets:
   text when it matters, screenshot paths if any were taken), **Learned**, one **Review** question, **Next** tasks.
 - **Lesson / records**: the `learning_new` files that belong to today, if any.
 - `last_commit` = newest sha covered, `commits` = how many.
+- PR numbers and commit shas where they're the point (the writer links them). When `source.kind` is `none`, add
+  `repo: <url>` if the conversation names the repo.
 Leave out secrets. Names in code (AOT objects, prefixes) are fine; personal or customer data from records (names,
 addresses, e-mails, tax IDs, customers and vendors from data) never: use placeholders (`<Customer>`, `<Amount>`).
 
