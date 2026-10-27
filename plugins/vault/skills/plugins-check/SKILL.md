@@ -3,7 +3,7 @@ name: plugins-check
 description: Compare this device's Obsidian community plugins with the vault's plugin list note, or rewrite the note with --update. Run only when the user types /vault:plugins-check.
 disable-model-invocation: true
 argument-hint: "[--update]"
-allowed-tools: Bash(python -I -B *) PowerShell(python -I -B *)
+allowed-tools: Bash(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/plugins_check.py" *) PowerShell(python -I -B "${CLAUDE_PLUGIN_ROOT}/scripts/plugins_check.py" *)
 ---
 
 Result of `plugins_check.py $ARGUMENTS`:

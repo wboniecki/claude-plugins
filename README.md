@@ -20,7 +20,8 @@ so any structure works, and a feature without its folder is simply off.
 
 Hooks:
 - after a successful `git push` or `tf checkin`, a one-line reminder to run `/vault:devlog`, or `/vault:d365-task` after a TFVC check-in or a push in a D365 repo (a model `Descriptor` folder);
-- when a session starts in the vault, a plugin check that speaks only when something differs.
+- when a session starts in the vault, a plugin check that speaks only when something differs;
+- when a session starts anywhere, a hint with the allow rule for the plugin's scripts if `~/.claude/settings.json` lacks it (see Install, auto mode).
 
 Supports git (GitHub, Azure DevOps) and TFVC, on Linux, macOS and Windows.
 
@@ -36,6 +37,22 @@ Set `vault_dir` to the vault's absolute path on this machine, with forward slash
 when asked, with `/plugin configure vault@wboniecki`, or
 `echo '{"vault_dir":"<path>"}' | claude plugin configure vault@wboniecki --values-stdin`. Restart Claude Code.
 If you used the old `wb` plugin, remove `DEVLOG_VAULT` from `env` in `~/.claude/settings.json`: nothing reads it anymore.
+
+**Auto mode:** skills load their facts by running the plugin's Python scripts (`!` injection). Claude Code's auto mode
+classifier can block that ("auto mode classifier gave no verdict"), although the skills allow the scripts in `allowed-tools`,
+and a plugin can't ship permission rules. Add an allow rule for the plugin's scripts to `permissions.allow` in
+`~/.claude/settings.json` (no user name in it, so the same rule works on every machine). Linux and macOS (Bash):
+
+```json
+"Bash(python -I -B \"*/plugins/cache/wboniecki/vault/*\")"
+```
+Windows (PowerShell; both separators, because the plugin path can come with either):
+
+```json
+"PowerShell(python -I -B \"*/plugins/cache/wboniecki/vault/*\")",
+"PowerShell(python -I -B \"*\\plugins\\cache\\wboniecki\\vault\\*\")"
+```
+When the rule is missing, the plugin says so at the start of a session.
 
 Then add the layout file to the vault (default path `99 - Meta/Claude/vault.json`, changeable with the `layout_file` option).
 Paths are relative to the vault; leave a key out to turn its feature off:
